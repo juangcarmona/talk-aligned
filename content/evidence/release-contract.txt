@@ -1,0 +1,27 @@
+# ProductShape release contract (README, "Release contract (what CI executes)")
+# @prodshape/cli@0.22.1, Node v22.22.1, run 2026-11-03 in a disposable directory.
+# Output copied verbatim; only the comments starting with "#" were added.
+
+$ prodshape cite --id BR-REFUND-001 --file docs/product/model/business-rules/br-refund-001.md --form sidecar-ledger > openspec/refund.citations.yml
+$ cat openspec/refund.citations.yml
+citations:
+  - id: BR-REFUND-001
+    digest: sha256:b5c5806732cb3e3f32a6b7da97fd3e712a1bb733b4bb50e2840874ae64713228
+
+$ prodshape citations verify
+current	BR-REFUND-001	openspec/refund.citations.yml:1
+warning PRODUCT105 docs/product/model/business-rules/br-refund-001.md [BR-REFUND-001]: Business rule 'BR-REFUND-001' has no consumers
+1 citation(s): 1 current, 0 stale, 0 tampered, 0 unresolved
+Tip: use --provider openspec for OpenSpec-aware verification that distinguishes current from archived material and enforces scope declarations.
+# exit 0
+
+# .product/config.yaml: warnings-as-errors: false -> true
+# br-refund-001.md: "30 days" -> "14 days"
+
+$ prodshape citations verify
+stale	BR-REFUND-001	openspec/refund.citations.yml:1
+warning PRODUCT105 docs/product/model/business-rules/br-refund-001.md [BR-REFUND-001]: Business rule 'BR-REFUND-001' has no consumers
+warning PRODUCT061 openspec/refund.citations.yml entry 1: Citation of 'BR-REFUND-001' is stale: canonical content changed since the citation was recorded (BR-REFUND-001)
+1 citation(s): 0 current, 1 stale, 0 tampered, 0 unresolved
+Tip: use --provider openspec for OpenSpec-aware verification that distinguishes current from archived material and enforces scope declarations.
+# exit 1
