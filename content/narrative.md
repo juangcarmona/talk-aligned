@@ -38,7 +38,7 @@ Juan's own tools prove it on themselves. ProductShape defines itself with its ow
 | # | Scene | Act | Min | Carries |
 | --- | --- | --- | --- | --- |
 | 1 | `title` | — | 1 | Who, where |
-| 2 | `origin` | I · Why | 5 | SDD cycles kept redefining the product and drifting; a PoC done properly defined the MVP first; then each SDD change was a slice |
+| 2 | `origin` | I · Why | 5 | SDD cycles kept redefining the product and drifting; a PoC done properly defined the MVP first; then each SDD change was a slice, shown as a before and after on architecture layers |
 | 3 | `noise` | I · Why | 4 | Refund grep, Shillinq: forbidden and mandatory in one file; issues are snapshots; contexts grow |
 | 4 | `two-truths` | II · Define | 4 | Intent vs architecture; related, never confused |
 | 5 | `artifacts` | II · Define | 5 | The artifact kinds, stable IDs, one real artifact |
@@ -71,7 +71,7 @@ One point cloud runs under every scene, drawn as glyphs (`. : - + x * # @`) in t
 | Scene | Form | Explains |
 | --- | --- | --- |
 | `title` | Loose noise | Knowledge without shape |
-| `origin` | Copies → off-target scatter → pull to centre → four kind nodes → a disc cut into slices | From drifting SDD cycles to slices of a defined product |
+| `origin` | Copies → off-target scatter → pull to centre → four kind nodes → pieces on two architectures: scattered and moving before, landing next to their definition after | From drifting SDD cycles to slices of a defined product |
 | `noise` | Many small deformed clusters | Copies of one decision, drifting |
 | `two-truths` | Two separate clusters joined by thin lines | Two sources, related, distinct |
 | `artifacts` | The PDaC logo, then a graph of kind-coloured nodes | Artifacts and relationships |

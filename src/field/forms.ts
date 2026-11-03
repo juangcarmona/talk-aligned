@@ -24,7 +24,8 @@ export const color = {
 export type Form = { pos: Float32Array; col: Float32Array; den: Float32Array; grp: Float32Array }
 
 export type FormName =
-  | 'noise' | 'condense' | 'copies' | 'off-target' | 'model' | 'slices' | 'two' | 'logo' | 'kinds'
+  | 'noise' | 'condense' | 'copies' | 'off-target' | 'model' | 'two' | 'logo' | 'kinds'
+  | 'before-1' | 'before-2' | 'before-3' | 'after-0' | 'after-1' | 'after-2' | 'after-3'
   | 'cite' | 'drift-current' | 'drift-stale' | 'pipeline' | 'dogfood' | 'bands' | 'ring'
 
 function rng(seed: number) {
@@ -96,6 +97,20 @@ class Builder {
     }
   }
 
+  /** One architecture piece: a 4×2 patch of glyphs centred on a sheet position in px. */
+  block(px: number, py: number, c: string, d: number) {
+    for (let k = 0; k < 8; k++) this.point((px - 960) / 60 + ((k % 4) - 1.5) * 0.2, (540 - py) / 60 + (Math.floor(k / 4) - 0.5) * 0.2, 0, c, d)
+  }
+
+  /** Leaves the next `count` points as background dust, so a piece that is not there yet waits in the dust. */
+  skip(count: number) {
+    this.group = -1
+    for (let k = 0; k < count && this.i < POINTS; k++) {
+      const [x, y, z, tint, d] = dust[this.i]
+      this.point(x, y, z, tint, d)
+    }
+  }
+
   /** Remaining points become faint background dust. Dust is fixed per index, so it stays put between forms. */
   done(): Form {
     this.group = -1
@@ -116,6 +131,68 @@ const dust: [number, number, number, string, number][] = (() => {
     random() * 0.22,
   ])
 })()
+
+/** Sheet geometry, in 1920×1080 px, of the two architectures on the origin scene: five layer rows per panel. */
+export const layers = { top: 300, row: 100, rows: 5, width: 760, panels: [96, 1064] as const }
+export const pieceColors = [color.uc, color.br, color.act, color.jrn]
+const expected = '#9aa3b5'
+
+type Piece = { x: number; y: number; c: string; g: number }
+
+function spot(random: () => number, panel: number, row: number, from = 36, span = layers.width - 72) {
+  return { x: layers.panels[panel] + from + random() * span, y: layers.top + row * layers.row + 30 + random() * 40 }
+}
+
+// Before: each SDD cycle expects something new (grey) and delivers somewhere else,
+// in every layer, and rewrites most of what earlier cycles delivered.
+// Pieces keep their index across cycles, so the field shows them move.
+const before = (() => {
+  const random = rng(42)
+  const ghosts: Piece[][] = []
+  const delivered: (Piece | null)[][] = []
+  let current: (Piece | null)[] = Array(36).fill(null)
+  for (let k = 0; k < 3; k++) {
+    ghosts.push(Array.from({ length: 12 }, () => ({ ...spot(random, 0, Math.floor(random() * layers.rows)), c: expected, g: k })))
+    current = current.map((piece, n) => {
+      if (Math.floor(n / 12) === k) return { ...spot(random, 0, n % layers.rows), c: pieceColors[k], g: k }
+      if (piece && random() < 0.6) return { ...spot(random, 0, Math.floor(random() * layers.rows)), c: pieceColors[k], g: k }
+      return piece
+    })
+    delivered.push(current)
+  }
+  return { ghosts, delivered }
+})()
+
+// After: intent and architecture are defined, so each slice is known up front
+// (grey) and lands close to it, in its own column; earlier slices stay put.
+const after = (() => {
+  const random = rng(7)
+  const ghosts: Piece[] = []
+  const delivered: Piece[] = []
+  for (let s = 0; s < 4; s++) {
+    const side = s % 2 ? 2 : 1 // CQRS: odd slices are queries, even slices commands
+    for (const row of [0, side, side, 3, 3, 4]) {
+      const ghost = { ...spot(random, 1, row, 26 + s * 190, 138), c: expected, g: 10 + s }
+      ghosts.push(ghost)
+      const angle = random() * Math.PI * 2, near = 16 + random() * 8
+      delivered.push({ x: ghost.x + near * Math.cos(angle), y: ghost.y + near * 0.6 * Math.sin(angle), c: pieceColors[s], g: 10 + s })
+    }
+  }
+  return { ghosts, delivered }
+})()
+
+/** Both architectures: `cycle` is the last SDD cycle shown before; `slices` is -1 (nothing defined yet) or the slices delivered after. */
+function architecture(b: Builder, cycle: number, slices: number) {
+  const put = (piece: Piece | null, d: number) => {
+    if (!piece) return b.skip(8)
+    b.group = piece.g
+    b.block(piece.x, piece.y, piece.c, d)
+  }
+  before.ghosts[cycle].forEach(piece => put(piece, 0.5))
+  before.delivered[cycle].forEach(piece => put(piece, 0.92))
+  after.ghosts.forEach(piece => put(slices >= 0 ? piece : null, 0.5))
+  after.delivered.forEach((piece, n) => put(Math.floor(n / 6) < slices ? piece : null, 0.92))
+}
 
 const kindRing: [string, string][] = [
   ['ACT', color.act], ['JRN', color.jrn], ['UC', color.uc], ['BR', color.br], ['TERM', color.term],
@@ -164,26 +241,13 @@ const builders: Record<FormName, (b: Builder) => void> = {
     ;[[0, 1], [1, 2], [1, 3], [2, 3]].forEach(([i, j]) => b.line(nodes[i][0], nodes[i][1], nodes[j][0], nodes[j][1], 150, color.accent, 0.3))
     nodes.forEach(([x, y, c]) => b.disc(x, y, 1.25, 520, c))
   },
-  slices: b => {
-    const wedges = [color.act, color.uc, color.br, color.term, color.jrn]
-    const [cx, cy, r] = [7.2, 0, 3.3]
-    for (let k = 0; k < 1500; k++) {
-      const rr = r * Math.sqrt((k + 0.5) / 1500), th = k * 2.39996
-      const angle = ((th % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2)
-      const w = Math.floor(angle / ((Math.PI * 2) / 5))
-      if (angle - w * ((Math.PI * 2) / 5) < 0.09) continue
-      const out = w === 4 ? 0.7 : 0
-      const mid = (w + 0.5) * ((Math.PI * 2) / 5)
-      b.group = w < 4 ? w : -1
-      b.point(cx + rr * Math.cos(th) + out * Math.cos(mid), cy + rr * Math.sin(th) + out * Math.sin(mid), (b.random() - 0.5) * 0.6, wedges[w], 0.85 - 0.4 * (rr / r))
-    }
-    wedges.slice(0, 4).forEach((c, k) => {
-      const y = 3.3 - k * 2.2
-      b.group = k
-      b.line(11.2, y, 12.4, y, 30, color.accent, 0.25)
-      for (let j = 0; j < 160; j++) b.point(12.8 + b.random() * 2.4, y + (b.random() - 0.5) * 1.1, 0, c, 0.75)
-    })
-  },
+  'before-1': b => architecture(b, 0, -1),
+  'before-2': b => architecture(b, 1, -1),
+  'before-3': b => architecture(b, 2, -1),
+  'after-0': b => architecture(b, 2, 0),
+  'after-1': b => architecture(b, 2, 1),
+  'after-2': b => architecture(b, 2, 2),
+  'after-3': b => architecture(b, 2, 3),
   two: b => {
     b.disc(5.5, 0, 2.6, 1300, color.accent, 0.8)
     b.disc(12.5, 0, 2.6, 1300, color.bc, 0.8)

@@ -113,16 +113,30 @@ blockquote { margin: 0; font-size: 46px; line-height: 1.2; font-weight: 600; bor
 .drawing .dot { fill: var(--ink); }
 .drawing .dimline { stroke: var(--k-business-rule); stroke-width: 2; }
 .drawing .dimtext { fill: var(--k-business-rule); font: 700 28px var(--mono); }
-.drawing .slice { opacity: 0; animation: fade .5s forwards; animation-delay: calc(var(--k) * .3s + .3s); }
-.rv:not(.on) .slice { animation: none; }
-.slices .box-kind { fill: var(--muted); font: 600 18px var(--mono); }
-.slices .box-number { fill: var(--ink); font: 700 32px var(--mono); }
-.slices .slice { cursor: crosshair; outline: none; }
-.slices .hit { fill: transparent; pointer-events: all; }
-.slices g > * { transition: opacity .25s, filter .25s; }
-.slices .faded .segment, .slices .faded .box { opacity: .35; }
-.slices .lit .segment, .slices .lit .box { opacity: 1; filter: drop-shadow(0 0 6px var(--c)) drop-shadow(0 0 18px var(--c)); }
-.slices .lit .box-number { fill: var(--c); filter: drop-shadow(0 0 8px var(--c)); }
+
+/* Origin: before and after on the layers of a Clean Architecture with CQRS. Laid out in sheet px over the glyph field, which draws the pieces. */
+.scene[data-scene='origin'] h2 { white-space: nowrap; }
+.architecture { position: absolute; left: -96px; top: -140px; width: 1920px; height: 1080px; pointer-events: none; }
+.architecture:not(.on) * { pointer-events: none !important; }
+.layers { position: absolute; inset: 0; width: 1920px; height: 1080px; }
+.layers .label { fill: var(--ink); font: 600 26px var(--mono); }
+.layers .frame { fill: none; stroke: var(--accent); stroke-opacity: .55; stroke-width: 2; }
+.layers line { stroke: var(--line); stroke-width: 1.5; }
+.layers line.split { stroke-dasharray: 6 8; }
+.layers g { transition: opacity .6s var(--ease); }
+.layers .waiting { opacity: .35; }
+.layers .row-label text { fill: var(--muted); font: 600 20px var(--mono); }
+.layers .row-label .group { font-size: 14px; letter-spacing: .14em; text-transform: uppercase; }
+.legend { position: absolute; top: 824px; display: flex; gap: 8px; align-items: center; pointer-events: auto; }
+.legend .rv { display: inline-flex; }
+.legend .key { display: inline-flex; align-items: center; gap: 8px; padding: 5px 10px; font: 600 17px var(--mono); color: var(--ink); background: transparent; border: 1.5px solid var(--line); border-radius: 3px; transition: opacity .25s, box-shadow .25s, color .25s, border-color .25s; }
+.legend .key::before { content: ''; width: 12px; height: 12px; background: var(--c); }
+.legend .expected { --c: #9aa3b5; color: var(--muted); border-style: dashed; }
+.legend button.key { cursor: crosshair; outline: none; }
+.legend .key.lit { color: var(--c); border-color: var(--c); box-shadow: 0 0 10px var(--c), 0 0 28px color-mix(in srgb, var(--c) 45%, transparent); }
+.legend .key.faded { opacity: .45; }
+.architecture > .rv { position: absolute; left: 96px; top: 880px; }
+.architecture > .muted { position: absolute; left: 96px; top: 946px; }
 .kicker { margin: 0; font: 600 26px var(--mono); color: var(--act); text-transform: uppercase; letter-spacing: .08em; }
 .blocks { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
 .blocks section { display: grid; gap: 8px; padding: 26px 28px; border: 2px solid var(--accent); border-radius: 3px; background: rgb(11 22 48 / 88%); }
@@ -273,7 +287,7 @@ blockquote { margin: 0; font-size: 46px; line-height: 1.2; font-weight: 600; bor
 .p-notes p.now { color: var(--ink); border-left: 4px solid var(--accent); padding-left: 12px; }
 .p-notes p.done { opacity: .5; }
 .presenter footer { grid-column: 1 / -1; color: var(--muted); font: 14px var(--mono); }
-.embed .rv, .embed .term-line, .embed .consumers li, .embed .pipeline li, .embed .draw, .embed .flow text, .embed .bar i, .embed .slice { animation: none !important; transition: none !important; }
+.embed .rv, .embed .term-line, .embed .consumers li, .embed .pipeline li, .embed .draw, .embed .flow text, .embed .bar i { animation: none !important; transition: none !important; }
 .embed .draw { stroke-dashoffset: 0; }
 .embed .term-line { clip-path: none; }
 .embed .consumers li, .embed .pipeline li, .embed .flow text { opacity: 1; }
@@ -287,5 +301,4 @@ blockquote { margin: 0; font-size: 46px; line-height: 1.2; font-weight: 600; bor
 .print .draw.dashed, .print .flow text, .print .consumers li, .print .pipeline li { opacity: 1; }
 .print .term-line { clip-path: none; }
 .print .bar i { transform: scaleX(1); }
-.print .slice, .embed .slice { opacity: 1; }
 @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }

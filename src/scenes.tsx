@@ -1,6 +1,6 @@
-import { useEffect, useState, type CSSProperties, type ReactNode } from 'react'
-import { At, Dim, Kind, Person, Source, Term } from './components'
-import type { FormName } from './field/forms'
+import { useContext, useEffect, useState, type CSSProperties, type ReactNode } from 'react'
+import { At, Dim, Kind, Person, Source, StepContext, Term } from './components'
+import { layers, pieceColors, type FormName } from './field/forms'
 import type { T } from './i18n'
 import { highlight } from './field/GlyphField'
 import { QrCode } from './QrCode'
@@ -20,28 +20,39 @@ export type Scene = {
 
 export const acts: [string, string][] = [['', ''], ['I · Why', 'I · Por qué'], ['II · Define', 'II · Definir'], ['III · Cite', 'III · Citar'], ['IV · Own it', 'IV · Asumirlo']]
 
-const sliceColors = ['var(--k-actor)', 'var(--k-use-case)', 'var(--k-business-rule)', 'var(--k-domain-term)', 'var(--k-journey)']
+const rows: [string, string, string?][] = [['API', 'API'], ['commands', 'comandos', 'Application'], ['queries', 'consultas', 'Application'], ['Domain', 'Dominio'], ['Infrastructure', 'Infraestructura']]
 
-/** The product definition as one bar and each SDD change as one slice of it. Hovering a change lights its wedge in the glyph field. */
-function Slices({ t }: { t: T }) {
+/** Before and after, on the layers of a Clean Architecture with CQRS. The pieces are points of the glyph field; this draws the layers, the labels and a legend whose entries light their pieces. */
+function Layers({ t }: { t: T }) {
+  const step = useContext(StepContext)
   const [lit, setLit] = useState(-1)
   useEffect(() => { highlight(lit) }, [lit])
   useEffect(() => () => highlight(-1), [])
-  return <svg className="drawing slices" viewBox="0 0 900 300" role="img" aria-label={t('The product definition as one bar; each SDD change is one slice of it', 'La definición de producto como una barra; cada cambio SDD es una porción')}>
-    <text className="label" x="0" y="26">{t('Product definition', 'Definición de producto')}</text>
-    {sliceColors.map((c, k) => <g key={k} className={lit === k ? 'lit' : lit >= 0 ? 'faded' : ''} style={{ '--c': c } as CSSProperties}>
-      <rect className="segment" x={k * 180 + 2} y="44" width="172" height="56" fill={c} opacity={k < 4 ? 0.85 : 0.25} />
-      {k < 4 && <g className="slice" data-hover style={{ '--k': k } as CSSProperties}
-        onPointerEnter={() => setLit(k)} onPointerLeave={() => setLit(-1)} onFocus={() => setLit(k)} onBlur={() => setLit(-1)} tabIndex={0}>
-        <rect className="hit" x={k * 180 + 2} y="106" width="172" height="180" />
-        <path className="draw" pathLength={1} d={`M${k * 180 + 88} 190 V112 m-8 12 l8 -12 l8 12`} style={{ '--d': `${0.3 + k * 0.3}s` } as CSSProperties} />
-        <rect className="box" x={k * 180 + 6} y="198" width="164" height="84" rx="3" fill="rgb(11 22 48 / 90%)" stroke={c} strokeWidth="2.5" />
-        <text className="box-kind" x={k * 180 + 88} y="230" textAnchor="middle">{t('SDD change', 'cambio SDD')}</text>
-        <text className="box-number" x={k * 180 + 88} y="268" textAnchor="middle">{String(k + 1).padStart(2, '0')}</text>
-      </g>}
-    </g>)}
-    <text className="inside muted-text" x="808" y="248" textAnchor="middle">{t('next…', 'siguiente…')}</text>
-  </svg>
+  const { top, row, width, panels } = layers
+  const bottom = top + row * rows.length
+  const legend = (panel: number, grey: string, entries: [label: string, group: number, at: number][]) =>
+    <div className="legend" style={{ left: panels[panel] }}>
+      <span className="key expected">{grey}</span>
+      {entries.map(([label, group, at], k) => <At as="span" at={at} key={group}>
+        <button type="button" className={`key ${lit === group ? 'lit' : lit >= 0 ? 'faded' : ''}`} data-hover style={{ '--c': pieceColors[k] } as CSSProperties}
+          onPointerEnter={() => setLit(group)} onPointerLeave={() => setLit(-1)} onFocus={() => setLit(group)} onBlur={() => setLit(-1)}>{label}</button>
+      </At>)}
+    </div>
+  return <>
+    <svg className="layers" viewBox="0 0 1920 1080" role="img" aria-label={t('Before and after on the layers of a Clean Architecture with CQRS', 'Antes y después sobre las capas de una Clean Architecture con CQRS')}>
+      {panels.map((x, p) => <g key={p} className={p && step < 7 ? 'waiting' : ''}>
+        <text className="label" x={x} y={top - 24}>{p ? t('After · intent and architecture defined', 'Después · intención y arquitectura definidas') : t('Before · SDD alone', 'Antes · solo SDD')}</text>
+        <rect className="frame" x={x} y={top} width={width} height={bottom - top} />
+        {rows.slice(1).map((_, r) => <line key={r} className={r === 1 ? 'split' : ''} x1={x} x2={x + width} y1={top + (r + 1) * row} y2={top + (r + 1) * row} />)}
+      </g>)}
+      {rows.map(([en, es, group], r) => <g key={r} className="row-label">
+        {group && <text className="group" x="960" y={top + r * row + 38} textAnchor="middle">{t(group, 'Aplicación')}</text>}
+        <text x="960" y={top + r * row + (group ? 66 : 57)} textAnchor="middle">{t(en, es)}</text>
+      </g>)}
+    </svg>
+    {legend(0, t('expected', 'lo esperado'), [1, 2, 3].map(k => [`${t('delivery', 'entrega')} ${k}`, k - 1, k + 3]))}
+    {legend(1, t('defined', 'lo definido'), [1, 2, 3, 4].map(k => [`${t('slice', 'porción')} ${k}`, k + 9, 7]))}
+  </>
 }
 
 const ARC_DIGEST = 'sha256:0c2a1bb402fcf272e5ecfe15282e8d15dccd7fb57992a344071757f82cf457a7'
@@ -63,7 +74,7 @@ export const scenes: Scene[] = [
     </div>,
   },
   {
-    id: 'origin', act: 1, title: ['Where this came from', 'De dónde viene esto'], steps: 4, layout: 'left', form: step => (['copies', 'off-target', 'condense', 'model', 'slices'] as const)[step],
+    id: 'origin', act: 1, title: ['Where this came from', 'De dónde viene esto'], steps: 10, layout: 'left', form: step => (['copies', 'off-target', 'condense', 'model', 'before-1', 'before-2', 'before-3', 'after-0', 'after-1', 'after-2', 'after-3'] as const)[step],
     content: t => <>
       <h2>{t('Where this came from', 'De dónde viene esto')}</h2>
       <At at={0} until={1} className="beat">
@@ -106,11 +117,13 @@ export const scenes: Scene[] = [
         <pre className="tree">{'docs/product/\n├── actors/\n├── use-cases/\n├── business-rules/\n└── domain/          '}<span className="comment"># DDD</span></pre>
         <p className="lead">{t('Plain Markdown. Product engineering and DDD.', 'Markdown sencillo. Product engineering y DDD.')}</p>
       </At>
-      <At at={4} until={5} className="beat">
-        <Slices t={t} />
-        <p className="lead">{t('Less drift. Much faster. Each SDD change is one slice.', 'Menos deriva. Mucho más rápido. Cada cambio SDD es una porción.')}</p>
+      <At at={0} until={4}><p className="muted small">{t('SDD projects at Plain Concepts, internal and for clients. Clients not named.', 'Proyectos SDD en Plain Concepts, internos y para clientes. Sin nombrar clientes.')}</p></At>
+      <At at={4} className="architecture">
+        <Layers t={t} />
+        <At at={4} until={7}><p className="lead">{t('Every delivery touches every layer.', 'Cada entrega toca todas las capas.')}</p></At>
+        <At at={7}><p className="lead">{t('Each slice lands close to where it was defined.', 'Cada porción cae cerca de donde se definió.')}</p></At>
+        <p className="muted small">{t('Illustration of SDD projects at Plain Concepts, internal and for clients. Not measured data.', 'Ilustración de proyectos SDD en Plain Concepts, internos y para clientes. No son datos medidos.')}</p>
       </At>
-      <p className="muted small">{t('SDD projects at Plain Concepts, internal and for clients. Clients not named.', 'Proyectos SDD en Plain Concepts, internos y para clientes. Sin nombrar clientes.')}</p>
     </>,
   },
   {
