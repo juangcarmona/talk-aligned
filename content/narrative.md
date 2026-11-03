@@ -25,7 +25,7 @@ BLOG-PDAC Part II describes the v0.1 loop (Delivery Slices, Handoffs, `promote`)
 
 ## The story
 
-It starts with client work. At Plain Concepts, Juan ran Spec-Driven Development projects, proofs of concept and AI adoption strategies with large clients he cannot name. Some PoCs were reverse engineering. Defining the product well cut drift sharply. SDD, in turn, produced a lot of noise: every change wrote more documents, and those documents only checked each other. The methodology grew out of that.
+It starts with client work. At Plain Concepts, Juan's team had done several SDD projects, internal and for clients he cannot name. Each SDD cycle redefined what they wanted, and what the AI understood drifted from it, so every iteration meant rework. When a client asked for a real proof of concept, they decided to do it properly: solid architecture foundations and the MVP defined as early as possible, in plain Markdown with folders for actors, use cases, business rules and a DDD domain. Drift dropped and delivery got much faster, because each SDD change became one incremental slice of a product that was already defined. The methodology grew out of that.
 
 The noise has a public example. Shillinq had 160 OpenSpec specs and 273 archived changes, and one official spec forbade and required the same service. An issue is a snapshot of one moment; specs that nobody consolidates pile up those snapshots, and the context grows past what an agent can handle, even with synchronisation mechanisms.
 
@@ -38,8 +38,8 @@ Juan's own tools prove it on themselves. ProductShape defines itself with its ow
 | # | Scene | Act | Min | Carries |
 | --- | --- | --- | --- | --- |
 | 1 | `title` | — | 1 | Who, where |
-| 2 | `origin` | I · Why | 4 | Client PoCs, reverse engineering, product definition reduced drift, SDD produced noise |
-| 3 | `noise` | I · Why | 5 | Refund grep, Shillinq: forbidden and mandatory in one file; issues are snapshots; contexts grow |
+| 2 | `origin` | I · Why | 5 | SDD cycles kept redefining the product and drifting; a PoC done properly defined the MVP first; then each SDD change was a slice |
+| 3 | `noise` | I · Why | 4 | Refund grep, Shillinq: forbidden and mandatory in one file; issues are snapshots; contexts grow |
 | 4 | `two-truths` | II · Define | 4 | Intent vs architecture; related, never confused |
 | 5 | `artifacts` | II · Define | 5 | The artifact kinds, stable IDs, one real artifact |
 | 6 | `cite` | III · Cite | 6 | One rule, its consumers, the citation line, digests |
@@ -71,7 +71,7 @@ One point cloud runs under every scene, drawn as glyphs (`. : - + x * # @`) in t
 | Scene | Form | Explains |
 | --- | --- | --- |
 | `title` | Loose noise | Knowledge without shape |
-| `origin` | Noise slowly condensing | Defining the product reduced drift |
+| `origin` | Copies → off-target scatter → pull to centre → four kind nodes → a disc cut into slices | From drifting SDD cycles to slices of a defined product |
 | `noise` | Many small deformed clusters | Copies of one decision, drifting |
 | `two-truths` | Two separate clusters joined by thin lines | Two sources, related, distinct |
 | `artifacts` | The PDaC logo, then a graph of kind-coloured nodes | Artifacts and relationships |

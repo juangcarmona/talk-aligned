@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type RefObject } from 'react'
 import { flushSync } from 'react-dom'
 import { channel, keyAction, next, parseHash, previous, same, toHash, type Message, type Position } from './nav'
+import { initialLang, storeLang, translator, type Lang } from './i18n'
 import { scenes } from './scenes'
 import { Stage } from './Stage'
 
@@ -75,17 +76,46 @@ export function useKeys(go: (p: Position) => void, ref: RefObject<Position>, ext
   }, [go, ref, extra])
 }
 
+/** Language shared by every window; the title sheet carries the toggle. */
+export function useLang() {
+  const [lang, setLang] = useState<Lang>(initialLang)
+  useEffect(() => { storeLang(lang) }, [lang])
+  useEffect(() => {
+    const onMessage = (event: MessageEvent<Message>) => {
+      if (event.data.type === 'lang') setLang(event.data.lang)
+      if (event.data.type === 'hello') channel?.postMessage({ type: 'lang', lang } satisfies Message)
+    }
+    channel?.addEventListener('message', onMessage)
+    return () => channel?.removeEventListener('message', onMessage)
+  }, [lang])
+  const choose = useCallback((value: Lang) => { setLang(value); channel?.postMessage({ type: 'lang', lang: value } satisfies Message) }, [])
+  return [lang, choose] as const
+}
+
+/** Whole minutes since the page loaded, like the clock in Software Engineering 2.0. */
+function useMinutes() {
+  const [start] = useState(() => performance.now())
+  const [minutes, setMinutes] = useState(0)
+  useEffect(() => {
+    const timer = setInterval(() => setMinutes(Math.floor((performance.now() - start) / 60000)), 5000)
+    return () => clearInterval(timer)
+  }, [start])
+  return minutes
+}
+
 export function Deck() {
   const sheet = useRef<HTMLDivElement>(null)
   const { position, go, ref } = usePosition({ broadcast: true, transitions: true })
   const [blackout, setBlackout] = useState(false)
+  const [lang, setLang] = useLang()
+  const minutes = useMinutes()
   useFit(sheet)
 
   const extra = useCallback((action: string) => {
-    if (action === 'presenter') window.open(`${location.pathname}?presenter${toHash(ref.current)}`, 'aligned-presenter', 'width=1400,height=860')
+    if (action === 'presenter') window.open(`${location.pathname}?presenter&lang=${lang}${toHash(ref.current)}`, 'aligned-presenter', 'width=1400,height=860')
     if (action === 'blackout') setBlackout(on => { channel?.postMessage({ type: 'blackout', on: !on } satisfies Message); return !on })
     if (action === 'fullscreen') document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen()
-  }, [ref])
+  }, [ref, lang])
   useKeys(go, ref, extra)
 
   useEffect(() => {
@@ -94,15 +124,15 @@ export function Deck() {
     return () => channel?.removeEventListener('message', onMessage)
   }, [])
 
-  useEffect(() => { document.title = `${scenes[position.index].title} · Aligned` }, [position.index])
+  useEffect(() => { document.title = `${translator(lang)(...scenes[position.index].title)} · Aligned` }, [position.index, lang])
 
   return <main className="viewport" onClick={event => {
-    if ((event.target as Element).closest('a, button')) return
+    if ((event.target as Element).closest('a, button, [data-hover]')) return
     go(event.clientX < innerWidth / 3 ? previous(ref.current) : next(ref.current))
   }}>
-    <div className="fit" ref={sheet}><Stage index={position.index} step={position.step} /></div>
+    <div className="fit" ref={sheet}><Stage index={position.index} step={position.step} lang={lang} minutes={minutes} onLang={setLang} /></div>
     {blackout && <div className="blackout" />}
-    <p className="visually-hidden" role="status" aria-live="polite">{position.index + 1} / {scenes.length} · {scenes[position.index].title}</p>
+    <p className="visually-hidden" role="status" aria-live="polite">{position.index + 1} / {scenes.length} · {translator(lang)(...scenes[position.index].title)}</p>
   </main>
 }
 
@@ -116,10 +146,10 @@ export function Embed() {
     addEventListener('hashchange', update)
     return () => removeEventListener('hashchange', update)
   }, [])
-  return <main className="viewport embed"><div className="fit" ref={sheet}><Stage index={position.index} step={position.step} still /></div></main>
+  return <main className="viewport embed"><div className="fit" ref={sheet}><Stage index={position.index} step={position.step} lang={initialLang()} still /></div></main>
 }
 
 /** Every scene at its final step, one per page, for PDF export. */
 export function Print() {
-  return <main className="print">{scenes.map((scene, index) => <section className="page" key={scene.id}><Stage index={index} step={scene.steps} still /></section>)}</main>
+  return <main className="print">{scenes.map((scene, index) => <section className="page" key={scene.id}><Stage index={index} step={scene.steps} lang={initialLang()} still /></section>)}</main>
 }

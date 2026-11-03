@@ -20,10 +20,11 @@ export const color = {
   sb: '#a5d05a',
 } as const
 
-export type Form = { pos: Float32Array; col: Float32Array; den: Float32Array }
+/** `grp` tags points that light up together (for example one pie wedge and its increment); -1 is no group. */
+export type Form = { pos: Float32Array; col: Float32Array; den: Float32Array; grp: Float32Array }
 
 export type FormName =
-  | 'noise' | 'condense' | 'copies' | 'two' | 'logo' | 'kinds'
+  | 'noise' | 'condense' | 'copies' | 'off-target' | 'model' | 'slices' | 'two' | 'logo' | 'kinds'
   | 'cite' | 'drift-current' | 'drift-stale' | 'pipeline' | 'dogfood' | 'bands' | 'ring'
 
 function rng(seed: number) {
@@ -45,6 +46,8 @@ class Builder {
   pos = new Float32Array(POINTS * 3)
   col = new Float32Array(POINTS * 3)
   den = new Float32Array(POINTS)
+  grp = new Float32Array(POINTS).fill(-1)
+  group = -1
   i = 0
   random: () => number
 
@@ -56,6 +59,7 @@ class Builder {
     this.pos.set([x, y, z], this.i * 3)
     this.col.set([r, g, b], this.i * 3)
     this.den[this.i] = Math.max(0, Math.min(1, d))
+    this.grp[this.i] = this.group
     this.i++
   }
 
@@ -94,11 +98,12 @@ class Builder {
 
   /** Remaining points become faint background dust. Dust is fixed per index, so it stays put between forms. */
   done(): Form {
+    this.group = -1
     while (this.i < POINTS) {
       const [x, y, z, tint, d] = dust[this.i]
       this.point(x, y, z, tint, d)
     }
-    return { pos: this.pos, col: this.col, den: this.den }
+    return { pos: this.pos, col: this.col, den: this.den, grp: this.grp }
   }
 }
 
@@ -145,6 +150,39 @@ const builders: Record<FormName, (b: Builder) => void> = {
       const y = 5.6 - Math.floor(k / 4) * 3.6 + (b.random() - 0.5) * 1.2
       b.blob(x, y, 0.35 + b.random() * 0.6, 0.3 + b.random() * 0.5, 150, k % 3 ? color.br : color.con, 0.6)
     }
+  },
+  'off-target': b => {
+    b.ring(9, 0, 1.1, 260, color.white, 0.75, 0.08)
+    b.disc(9, 0, 0.18, 30, color.white, 0.9)
+    for (let k = 0; k < 9; k++) {
+      const th = k * 2.39996 + 0.4, rr = 2.6 + (k % 3) * 1.25
+      b.blob(9 + rr * Math.cos(th) * 1.25, rr * Math.sin(th) * 0.95, 0.32 + b.random() * 0.3, 0.28 + b.random() * 0.25, 170, k % 2 ? color.br : color.con, 0.6)
+    }
+  },
+  model: b => {
+    const nodes: [number, number, string][] = [[5.6, 3, color.act], [12.4, 3, color.uc], [12.4, -3, color.br], [5.6, -3, color.term]]
+    ;[[0, 1], [1, 2], [1, 3], [2, 3]].forEach(([i, j]) => b.line(nodes[i][0], nodes[i][1], nodes[j][0], nodes[j][1], 150, color.accent, 0.3))
+    nodes.forEach(([x, y, c]) => b.disc(x, y, 1.25, 520, c))
+  },
+  slices: b => {
+    const wedges = [color.act, color.uc, color.br, color.term, color.jrn]
+    const [cx, cy, r] = [7.2, 0, 3.3]
+    for (let k = 0; k < 1500; k++) {
+      const rr = r * Math.sqrt((k + 0.5) / 1500), th = k * 2.39996
+      const angle = ((th % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2)
+      const w = Math.floor(angle / ((Math.PI * 2) / 5))
+      if (angle - w * ((Math.PI * 2) / 5) < 0.09) continue
+      const out = w === 4 ? 0.7 : 0
+      const mid = (w + 0.5) * ((Math.PI * 2) / 5)
+      b.group = w < 4 ? w : -1
+      b.point(cx + rr * Math.cos(th) + out * Math.cos(mid), cy + rr * Math.sin(th) + out * Math.sin(mid), (b.random() - 0.5) * 0.6, wedges[w], 0.85 - 0.4 * (rr / r))
+    }
+    wedges.slice(0, 4).forEach((c, k) => {
+      const y = 3.3 - k * 2.2
+      b.group = k
+      b.line(11.2, y, 12.4, y, 30, color.accent, 0.25)
+      for (let j = 0; j < 160; j++) b.point(12.8 + b.random() * 2.4, y + (b.random() - 0.5) * 1.1, 0, c, 0.75)
+    })
   },
   two: b => {
     b.disc(5.5, 0, 2.6, 1300, color.accent, 0.8)

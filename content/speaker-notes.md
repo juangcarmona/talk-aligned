@@ -8,7 +8,7 @@ Hi, I'm Juan, Software Development Engineer at Plain Concepts. In the next forty
 
 ## origin
 
-This didn't start as a theory. At Plain Concepts I've been doing Spec-Driven Development with clients I can't name: proofs of concept, AI adoption strategies for their software lifecycle, modernisation projects. Some of the PoCs were reverse engineering. [click] And we kept seeing the same thing: when the product was well defined, drift dropped a lot. When we only had SDD, we got noise. Every change produced more documents. That's where the methodology came from.
+This didn't start as a theory. We'd been doing Spec-Driven Development for a while at Plain Concepts, internal projects and for clients I can't name. And intuitively we knew it wasn't enough to define what we wanted again in every SDD cycle. [click] Because we kept seeing drift: what the AI thought we wanted versus what we actually wanted. Every iteration meant restructuring. Rework, again and again. [click] So when a client asked us for a real proof of concept, we said: let's do it right. Solid architecture foundations, and define the MVP as early as possible. Yes, agile, all of that. But what do we actually know about the product we want to build? [click] We wrote it down. With what plain Markdown gives you: simple files, a folder structure. And with what product engineering gives you: actors, use cases, business rules. Plus a domain definition, Domain-Driven Design. [click] And our clients' products started drifting much less, and moving much faster. Because every SDD change was iterative and incremental: SDD now delivered one slice of a product we had already defined.
 
 ## noise
 

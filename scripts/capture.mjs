@@ -1,10 +1,11 @@
 // Renders the built deck with Playwright: `shots` (one PNG per step), `pdf` (one page per scene), `og` (share image).
-// Run `npm run build` first. Usage: node scripts/capture.mjs shots|pdf|og
+// Run `npm run build` first. Usage: node scripts/capture.mjs shots|pdf|og (LANG_DECK=es for Spanish)
 import { chromium } from '@playwright/test'
 import { mkdir } from 'node:fs/promises'
 import { preview } from 'vite'
 
 const mode = process.argv[2] ?? 'shots'
+const lang = process.env.LANG_DECK === 'es' ? 'es' : 'en'
 const server = await preview({ preview: { port: 4174, strictPort: true }, logLevel: 'silent' })
 const base = 'http://localhost:4174/'
 const browser = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] })
@@ -12,9 +13,9 @@ const browser = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=sw
 try {
   if (mode === 'pdf') {
     const page = await browser.newPage({ viewport: { width: 1920, height: 1080 } })
-    await page.goto(`${base}?print`, { waitUntil: 'networkidle' })
+    await page.goto(`${base}?print&lang=${lang}`, { waitUntil: 'networkidle' })
     await page.waitForTimeout(500)
-    await page.pdf({ path: 'aligned-xops-madrid-2026.pdf', width: '1920px', height: '1080px', printBackground: true })
+    await page.pdf({ path: `aligned-xops-madrid-2026${lang === 'es' ? '-es' : ''}.pdf`, width: '1920px', height: '1080px', printBackground: true })
     console.log('aligned-xops-madrid-2026.pdf')
   } else if (mode === 'og') {
     const page = await browser.newPage({ viewport: { width: 1200, height: 630 } })
@@ -25,12 +26,12 @@ try {
   } else {
     await mkdir('screenshots', { recursive: true })
     const page = await browser.newPage({ viewport: { width: 1920, height: 1080 } })
-    await page.goto(base, { waitUntil: 'networkidle' })
+    await page.goto(`${base}?lang=${lang}`, { waitUntil: 'networkidle' })
     const positions = await page.evaluate(() => window.__positions)
     for (const [k, { id, step }] of positions.entries()) {
       await page.evaluate(hash => { location.hash = hash }, `#/${id}${step ? `/${step}` : ''}`)
       await page.waitForTimeout(2600)
-      const file = `screenshots/${String(k + 1).padStart(2, '0')}-${id}-${step}.png`
+      const file = `screenshots/${lang}-${String(k + 1).padStart(2, '0')}-${id}-${step}.png`
       await page.screenshot({ path: file })
       console.log(file)
     }

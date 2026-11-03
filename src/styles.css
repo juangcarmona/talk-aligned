@@ -61,6 +61,12 @@ code, pre, kbd { font-family: var(--mono); }
 .chapter-bar { position: absolute; left: 28px; right: 28px; top: 28px; height: 10px; background: var(--act); view-transition-name: chapter-bar; }
 .chapter-label { position: absolute; left: 72px; top: 56px; margin: 0; font: 600 24px var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--act); }
 .sheet-block { position: absolute; right: 28px; bottom: 28px; margin: 0; display: flex; font: 500 17px var(--mono); color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+.sheet-block .elapsed { color: var(--ink); font-weight: 700; }
+.lang-toggle { position: absolute; left: 28px; bottom: 28px; z-index: 2; display: flex; border-top: 1.5px solid rgb(122 167 255 / 35%); border-right: 1.5px solid rgb(122 167 255 / 35%); }
+.lang-toggle button { font: 600 20px var(--mono); letter-spacing: .1em; padding: 8px 20px; background: transparent; color: var(--muted); border: 0; cursor: pointer; }
+.lang-toggle button + button { border-left: 1.5px solid rgb(122 167 255 / 35%); }
+.lang-toggle button[aria-pressed='true'] { background: var(--accent); color: var(--paper); }
+.lang-toggle button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 .sheet-block span { padding: 8px 16px; border-left: 1.5px solid rgb(122 167 255 / 35%); border-top: 1.5px solid rgb(122 167 255 / 35%); }
 
 /* Scene layouts */
@@ -74,7 +80,7 @@ code, pre, kbd { font-family: var(--mono); }
 .small { font-size: 22px; }
 .source { position: absolute; left: 0; bottom: -64px; margin: 0; font: 19px var(--mono); color: var(--muted); white-space: nowrap; }
 .sheet[data-layout='full'] .source { bottom: -64px; }
-.source::before { content: 'SOURCE  '; color: var(--accent); letter-spacing: .08em; }
+.source span { margin-right: 16px; color: var(--accent); letter-spacing: .08em; text-transform: uppercase; }
 blockquote { margin: 0; font-size: 46px; line-height: 1.2; font-weight: 600; border-left: 8px solid var(--act); padding-left: 32px; }
 .small-quote { font-size: 32px; font-weight: 500; }
 .punch { margin: 0; font-size: 54px; font-weight: 700; line-height: 1.15; }
@@ -97,6 +103,34 @@ blockquote { margin: 0; font-size: 46px; line-height: 1.2; font-weight: 600; bor
 .flow { width: 900px; overflow: visible; }
 .flow text { fill: var(--ink); font: 600 23px var(--sans); opacity: 0; animation: fade .6s forwards; animation-delay: calc(var(--d, 0s) + .5s); }
 .flow rect { fill: rgb(11 22 48 / 80%); }
+.beat { display: grid; gap: 28px; }
+.drawing { width: 900px; overflow: visible; }
+.drawing .label { fill: var(--ink); font: 600 26px var(--mono); }
+.drawing .inside { fill: var(--ink); font: 600 21px var(--sans); }
+.drawing .muted-text { fill: var(--muted); }
+.drawing .warn.draw { stroke: var(--k-constraint); }
+.drawing text.warn { fill: var(--k-constraint); }
+.drawing .dot { fill: var(--ink); }
+.drawing .dimline { stroke: var(--k-business-rule); stroke-width: 2; }
+.drawing .dimtext { fill: var(--k-business-rule); font: 700 28px var(--mono); }
+.drawing .slice { opacity: 0; animation: fade .5s forwards; animation-delay: calc(var(--k) * .3s + .3s); }
+.rv:not(.on) .slice { animation: none; }
+.slices .box-kind { fill: var(--muted); font: 600 18px var(--mono); }
+.slices .box-number { fill: var(--ink); font: 700 32px var(--mono); }
+.slices .slice { cursor: crosshair; outline: none; }
+.slices .hit { fill: transparent; pointer-events: all; }
+.slices g > * { transition: opacity .25s, filter .25s; }
+.slices .faded .segment, .slices .faded .box { opacity: .35; }
+.slices .lit .segment, .slices .lit .box { opacity: 1; filter: drop-shadow(0 0 6px var(--c)) drop-shadow(0 0 18px var(--c)); }
+.slices .lit .box-number { fill: var(--c); filter: drop-shadow(0 0 8px var(--c)); }
+.kicker { margin: 0; font: 600 26px var(--mono); color: var(--act); text-transform: uppercase; letter-spacing: .08em; }
+.blocks { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.blocks section { display: grid; gap: 8px; padding: 26px 28px; border: 2px solid var(--accent); border-radius: 3px; background: rgb(11 22 48 / 88%); }
+.blocks small { font: 600 20px var(--mono); color: var(--accent); }
+.blocks strong { font-size: 34px; }
+.question { margin: 0; font-size: 52px; font-weight: 700; line-height: 1.15; }
+.tree { margin: 0; padding: 28px 32px; font-size: 34px; line-height: 1.5; background: rgb(8 16 31 / 92%); border: 1.5px solid var(--line); }
+.tree .comment { color: var(--k-domain-term); }
 .bars { display: grid; gap: 18px; }
 .bar { display: grid; grid-template-columns: 500px 1fr; align-items: center; font: 600 24px var(--mono); }
 .bar i { display: block; height: 22px; border: 2px solid var(--k-use-case); background: repeating-linear-gradient(45deg, rgb(79 203 140 / 35%) 0 6px, transparent 6px 12px); transform-origin: left; transform: scaleX(0); transition: transform 1.2s var(--ease) .2s; }
@@ -239,7 +273,7 @@ blockquote { margin: 0; font-size: 46px; line-height: 1.2; font-weight: 600; bor
 .p-notes p.now { color: var(--ink); border-left: 4px solid var(--accent); padding-left: 12px; }
 .p-notes p.done { opacity: .5; }
 .presenter footer { grid-column: 1 / -1; color: var(--muted); font: 14px var(--mono); }
-.embed .rv, .embed .term-line, .embed .consumers li, .embed .pipeline li, .embed .draw, .embed .flow text, .embed .bar i { animation: none !important; transition: none !important; }
+.embed .rv, .embed .term-line, .embed .consumers li, .embed .pipeline li, .embed .draw, .embed .flow text, .embed .bar i, .embed .slice { animation: none !important; transition: none !important; }
 .embed .draw { stroke-dashoffset: 0; }
 .embed .term-line { clip-path: none; }
 .embed .consumers li, .embed .pipeline li, .embed .flow text { opacity: 1; }
@@ -253,4 +287,5 @@ blockquote { margin: 0; font-size: 46px; line-height: 1.2; font-weight: 600; bor
 .print .draw.dashed, .print .flow text, .print .consumers li, .print .pipeline li { opacity: 1; }
 .print .term-line { clip-path: none; }
 .print .bar i { transform: scaleX(1); }
+.print .slice, .embed .slice { opacity: 1; }
 @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }

@@ -27,7 +27,7 @@ export function same(a: Position, b: Position) {
 }
 
 // Audience and presenter windows stay in step through one channel.
-export type Message = { type: 'goto'; position: Position } | { type: 'hello' } | { type: 'blackout'; on: boolean }
+export type Message = { type: 'goto'; position: Position } | { type: 'hello' } | { type: 'blackout'; on: boolean } | { type: 'lang'; lang: 'en' | 'es' }
 export const channel = typeof BroadcastChannel === 'undefined' ? null : new BroadcastChannel('aligned-deck')
 
 export function keyAction(event: KeyboardEvent): 'next' | 'previous' | 'first' | 'last' | 'presenter' | 'blackout' | 'fullscreen' | null {

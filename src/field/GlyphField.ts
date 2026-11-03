@@ -1,4 +1,4 @@
-import { BufferAttribute, BufferGeometry, CanvasTexture, NearestFilter, PerspectiveCamera, Points, Scene, ShaderMaterial, WebGLRenderer } from 'three'
+import { AdditiveBlending, BufferAttribute, BufferGeometry, CanvasTexture, NearestFilter, PerspectiveCamera, Points, Scene, ShaderMaterial, WebGLRenderer } from 'three'
 import { GLYPHS, POINTS, form, type Form, type FormName } from './forms'
 
 // The recurring piece: one point cloud whose sprites sample a glyph atlas.
@@ -8,6 +8,15 @@ import { GLYPHS, POINTS, form, type Form, type FormName } from './forms'
 const FOV = 30
 export const DISTANCE = 9 / Math.tan((FOV / 2) * (Math.PI / 180))
 const MORPH_MS = 1700
+const GLOW_MS = 280
+
+// Live fields, so scene content can light a group of points without holding a reference.
+const live = new Set<GlyphField>()
+
+/** Light the points of one group in neon (-1 turns it off). */
+export function highlight(group: number) {
+  live.forEach(field => field.setHighlight(group))
+}
 
 function atlas() {
   const canvas = document.createElement('canvas')
@@ -25,7 +34,11 @@ function atlas() {
   return texture
 }
 
-const vertexShader = /* glsl */ `
+const vertexShader = (halo: boolean) => /* glsl */ `
+  attribute float gTo;
+  uniform float uHighlight;
+  uniform float uGlow;
+  varying float vLit;
   attribute vec3 aFrom;
   attribute vec3 aTo;
   attribute vec3 cFrom;
@@ -50,14 +63,30 @@ const vertexShader = /* glsl */ `
     p.z += sin(m * 3.14159) * (aSeed - 0.5) * 3.0;
     p.x += sin(uTime * 0.55 + aSeed * 40.0) * 0.035 * uIdle;
     p.y += cos(uTime * 0.45 + aSeed * 31.0) * 0.035 * uIdle;
-    vColor = mix(cFrom, cTo, m);
-    float d = mix(dFrom, dTo, m);
+    float lit = uGlow * (1.0 - step(0.5, abs(gTo - uHighlight)));
+    float dimmed = uGlow * (1.0 - lit);
+    vLit = lit;
+    vec3 base = mix(cFrom, cTo, m);
+    vColor = mix(base, min(base * 1.3 + 0.08, vec3(1.0)), lit);
+    float d = mix(mix(dFrom, dTo, m), 0.97, lit);
     float flicker = fract(sin(dot(vec2(aSeed, floor(uTime * 2.0 + aSeed * 9.0)), vec2(12.9898, 78.233))) * 43758.5453);
     vGlyph = floor(clamp(d + (flicker - 0.5) * 0.16 * uIdle, 0.0, 0.999) * 8.0);
-    vAlpha = mix(0.32, 1.0, d);
+    vAlpha = mix(0.32, 1.0, d) * (1.0 - 0.62 * dimmed);
+    float buzz = 0.88 + 0.12 * sin(uTime * 9.0 + aSeed * 40.0);
     vec4 mv = modelViewMatrix * vec4(p, 1.0);
-    gl_PointSize = uSize * uScale * (${DISTANCE.toFixed(3)} / -mv.z);
+    gl_PointSize = uSize * uScale * (${DISTANCE.toFixed(3)} / -mv.z) * (1.0 + ${halo ? '2.4' : '0.45'} * lit * buzz);
     gl_Position = projectionMatrix * mv;
+  }
+`
+
+// The halo pass draws lit points again as soft additive discs: the neon glow.
+const haloShader = /* glsl */ `
+  varying vec3 vColor;
+  varying float vLit;
+  void main() {
+    if (vLit < 0.02) discard;
+    float r = length(gl_PointCoord - 0.5) * 2.0;
+    gl_FragColor = vec4(vColor, pow(max(0.0, 1.0 - r), 2.4) * 0.12 * vLit);
   }
 `
 
@@ -66,6 +95,7 @@ const fragmentShader = /* glsl */ `
   varying vec3 vColor;
   varying float vGlyph;
   varying float vAlpha;
+  varying float vLit;
   void main() {
     vec2 uv = vec2((vGlyph + gl_PointCoord.x) / 8.0, 1.0 - gl_PointCoord.y);
     float a = texture2D(uAtlas, uv).a;
@@ -81,6 +111,10 @@ export class GlyphField {
   private geometry = new BufferGeometry()
   private material: ShaderMaterial
   private points: Points
+  private halo: Points
+  private haloMaterial: ShaderMaterial
+  private glow = 0
+  private glowTarget = 0
   private current: Form
   private target: Form
   private seeds = new Float32Array(POINTS)
@@ -104,13 +138,18 @@ export class GlyphField {
     attr('dFrom', this.current.den, 1)
     attr('dTo', this.target.den, 1)
     attr('aSeed', this.seeds, 1)
-    this.material = new ShaderMaterial({
-      vertexShader, fragmentShader, transparent: true, depthWrite: false,
-      uniforms: { uAtlas: { value: atlas() }, uMix: { value: 1 }, uTime: { value: 0 }, uIdle: { value: reduced ? 0 : 1 }, uSize: { value: 15 }, uScale: { value: 1 } },
-    })
+    attr('gTo', this.target.grp, 1)
+    const uniforms = {
+      uAtlas: { value: atlas() }, uMix: { value: 1 }, uTime: { value: 0 }, uIdle: { value: reduced ? 0 : 1 }, uSize: { value: 15 }, uScale: { value: 1 },
+      uHighlight: { value: -1 }, uGlow: { value: 0 },
+    }
+    this.material = new ShaderMaterial({ vertexShader: vertexShader(false), fragmentShader, transparent: true, depthWrite: false, uniforms })
+    this.haloMaterial = new ShaderMaterial({ vertexShader: vertexShader(true), fragmentShader: haloShader, transparent: true, depthWrite: false, blending: AdditiveBlending, uniforms })
+    this.halo = new Points(this.geometry, this.haloMaterial)
     this.points = new Points(this.geometry, this.material)
-    this.points.frustumCulled = false
-    this.scene.add(this.points)
+    this.halo.frustumCulled = this.points.frustumCulled = false
+    this.scene.add(this.halo, this.points)
+    live.add(this)
     this.resize()
     this.loop()
   }
@@ -134,7 +173,8 @@ export class GlyphField {
     this.current = from
     this.target = next
     this.write('aFrom', from.pos); this.write('cFrom', from.col); this.write('dFrom', from.den)
-    this.write('aTo', next.pos); this.write('cTo', next.col); this.write('dTo', next.den)
+    this.write('aTo', next.pos); this.write('cTo', next.col); this.write('dTo', next.den); this.write('gTo', next.grp)
+    this.glowTarget = 0
     this.mix = this.reduced ? 1 : 0
     this.morphStart = performance.now()
   }
@@ -158,7 +198,13 @@ export class GlyphField {
       }
       den[i] = this.current.den[i] + (this.target.den[i] - this.current.den[i]) * m
     }
-    return { pos, col, den }
+    return { pos, col, den, grp: this.target.grp }
+  }
+
+  setHighlight(group: number) {
+    if (group >= 0) this.material.uniforms.uHighlight.value = group
+    this.glowTarget = group >= 0 ? 1 : 0
+    if (this.reduced) this.glow = this.glowTarget
   }
 
   private loop = () => {
@@ -170,15 +216,21 @@ export class GlyphField {
     const u = this.material.uniforms
     u.uMix.value = this.mix
     u.uTime.value = t
+    const step = 16 / GLOW_MS
+    this.glow = this.glowTarget > this.glow ? Math.min(this.glowTarget, this.glow + step) : Math.max(this.glowTarget, this.glow - step)
+    u.uGlow.value = this.glow
     this.points.rotation.y = Math.sin(t * 0.07) * 0.12
     this.points.rotation.x = Math.sin(t * 0.05) * 0.04
+    this.halo.rotation.copy(this.points.rotation)
     this.renderer.render(this.scene, this.camera)
   }
 
   dispose() {
     cancelAnimationFrame(this.frame)
+    live.delete(this)
     this.geometry.dispose()
     this.material.dispose()
+    this.haloMaterial.dispose()
     this.renderer.dispose()
   }
 }

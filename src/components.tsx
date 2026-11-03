@@ -42,6 +42,6 @@ export function Person() {
   return <svg className="person" viewBox="0 0 24 24" aria-label="human decision" role="img"><circle cx="12" cy="7" r="3.5" /><path d="M4.5 21v-2.5a7.5 7.5 0 0 1 15 0V21" /></svg>
 }
 
-export function Source({ children }: { children: ReactNode }) {
-  return <p className="source">{children}</p>
+export function Source({ children, t }: { children: ReactNode; t: (en: string, es: string) => string }) {
+  return <p className="source"><span>{t('Source', 'Fuente')}</span>{children}</p>
 }

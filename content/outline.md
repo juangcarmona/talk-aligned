@@ -15,12 +15,18 @@ Eleven scenes. Each has a stable ID (its URL is `/#/<id>`), what is on screen, t
 - **Motion:** Glyph noise drifting on the blueprint grid; dimension lines frame the title like a drawing sheet with a title block.
 - **Sources:** title ABS; role ABS speaker line ("Software Development Engineer at Plain Concepts"); place and date JUAN.
 
-### 2. `origin` · 4 min · I · Why
-- **On screen:** Three blueprint boxes drawn left to right: **[proposal]** "Client PoCs" → "Reverse engineering" → "Product definition". → under them, two measured bars: "drift" short, "SDD noise" long.
-- **Motion:** Boxes draw as strokes; the bars extend like dimension lines. The glyph noise starts to condense. Explains where the method came from: defining the product reduced drift, SDD added noise.
-- **Sources:** JUAN (client SDD projects at Plain Concepts, unnamed; PoCs with reverse engineering; "definiendo bien el producto, las derivas se reducían mucho"; "SDD generaba mucho ruido"). BLOG-PDAC: "I recently tried this approach manually with quite a few clients, and it worked."
+### 2. `origin` · 5 min · I · Why
+Five steps. One story: SDD alone kept drifting; a PoC done properly defined the product first; after that each SDD change was one slice of a known product.
+- **On screen, step by step** (all wording **[proposal]**):
+  0. Three SDD cycles drawn in a row, each one with "redefine what we want" inside. Caption: "Every SDD cycle redefined the product."
+  1. Two lines leave the same point: "what we wanted" straight, "what the AI understood" bending away; a dimension between their ends labelled "drift". Below: "rework, every iteration".
+  2. "A real PoC. Let's do it right." Two blocks: "Architecture foundations" · "MVP defined early". Under them, large: "What do we know about the product?"
+  3. A folder tree in plain Markdown: `docs/product/` → `actors/` · `use-cases/` · `business-rules/` · `domain/` (DDD). Caption: "Plain Markdown. Product engineering and DDD."
+  4. The product definition as one bar; below it, SDD changes as slices, each pointing at its part of the bar. Caption: "Less drift. Much faster. Each SDD change is one slice."
+- **Motion:** The glyph field tells the same story. 0: the same cluster restated in many deformed copies. 1: copies scattered around a white target ring, all off-centre. 2: everything pulls towards the centre. 3: the cloud forms four kind nodes (ACT, UC, BR, TERM) joined by edges. 4: the nodes merge into one disc cut into wedges; one wedge at a time detaches to the right and lines up as an increment.
+- **Sources:** JUAN, 2026-11-03 (SDD projects, internal and for Plain Concepts clients, not named; per-cycle redefinition and drift between what the AI thought we wanted and what we wanted; rework every iteration; a real PoC with architecture foundations and the MVP defined as early as possible; plain Markdown, folder structure, actors, use cases, business rules, domain definition with DDD; less drift and much faster delivery; each SDD change iterative and incremental, one slice of the development). BLOG-PDAC: "I recently tried this approach manually with quite a few clients, and it worked."
 
-### 3. `noise` · 5 min · I · Why
+### 3. `noise` · 4 min · I · Why
 - **On screen:** The refund grep:
   ```
   $ grep -rn -i "refund" openspec/specs
