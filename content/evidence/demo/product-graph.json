@@ -1,0 +1,857 @@
+{
+  "schema": "product-definition-as-code/graph/v1alpha1",
+  "nodes": [
+    {
+      "id": "ACT-CUSTOMER",
+      "type": "actor",
+      "title": "Customer",
+      "status": "active",
+      "path": "docs/product/model/actors/act-customer.md",
+      "digest": "sha256:ce207a7f81386601236f715ba2c1aafb53d9cb1434962a035715670d8c4da509"
+    },
+    {
+      "id": "ACT-PAYMENT-SERVICE",
+      "type": "actor",
+      "title": "Payment Service",
+      "status": "active",
+      "path": "docs/product/model/actors/act-payment-service.md",
+      "digest": "sha256:837a54269f7184778d759451fe700a36f41e938977f71643d1418e1fcdfa8e03"
+    },
+    {
+      "id": "ACT-SUPPORT-AGENT",
+      "type": "actor",
+      "title": "Support Agent",
+      "status": "active",
+      "path": "docs/product/model/actors/act-support-agent.md",
+      "digest": "sha256:bd69f44b565daa4aa5c5615cb2cda7c89579121c4424944ed8f50310551f941f"
+    },
+    {
+      "id": "BC-ORDERING",
+      "type": "bounded-context",
+      "title": "Ordering",
+      "status": "active",
+      "path": "docs/product/model/domain/bounded-contexts/bc-ordering.md",
+      "digest": "sha256:f11ecbce4f4854f7aaddf7f19cc774003b181f701603b80674b26ab9f3db1b14"
+    },
+    {
+      "id": "BC-PAYMENTS",
+      "type": "bounded-context",
+      "title": "Payments",
+      "status": "active",
+      "path": "docs/product/model/domain/bounded-contexts/bc-payments.md",
+      "digest": "sha256:277f0cbcf9a11ce7df406f65574d9232ae6bb813ac9bf0560a82b1e23f8031a1"
+    },
+    {
+      "id": "BR-CANCEL-001",
+      "type": "business-rule",
+      "title": "Cancel before dispatch",
+      "status": "active",
+      "path": "docs/product/model/business-rules/br-cancel-001.md",
+      "digest": "sha256:ac0d6a117810ca39dd9b31b7c93c8a1a5c4101bf1c417b9b1524114c73d6a434"
+    },
+    {
+      "id": "BR-PAYMENT-001",
+      "type": "business-rule",
+      "title": "Paid before confirmed",
+      "status": "active",
+      "path": "docs/product/model/business-rules/br-payment-001.md",
+      "digest": "sha256:dac6cd1d1de2c827a194222ec581eaa0e920852f48d7bdad80fc3474eec12374"
+    },
+    {
+      "id": "BR-REFUND-001",
+      "type": "business-rule",
+      "title": "Refund window",
+      "status": "active",
+      "path": "docs/product/model/business-rules/br-refund-001.md",
+      "digest": "sha256:b1ae4e4cbc6a19a762a5de5b9e2a46a9acb8e48f5cc7161b8456fa7135bfd2e9"
+    },
+    {
+      "id": "CON-CARD-DATA",
+      "type": "constraint",
+      "title": "No stored card data",
+      "status": "active",
+      "path": "docs/product/model/requirements/constraints/con-card-data.md",
+      "digest": "sha256:a1878a954dfe8a97fb2e12d79a03fc6b3a8c713bd051bab12f3ff980d47bff70"
+    },
+    {
+      "id": "CON-ORDER-OWNERSHIP",
+      "type": "constraint",
+      "title": "Only the owner acts on an order",
+      "status": "active",
+      "path": "docs/product/model/requirements/constraints/con-order-ownership.md",
+      "digest": "sha256:ed33fc9f3887432f5358bfe8ceb641bc4655bfec5b7c32ed57a17631f2efd071"
+    },
+    {
+      "id": "FR-CANCEL",
+      "type": "functional-requirement",
+      "title": "Cancel undispatched orders",
+      "status": "active",
+      "path": "docs/product/model/requirements/functional/fr-cancel.md",
+      "digest": "sha256:be266a3731790f763153ff9fe89494e5787f4ce79d977c971d9210317418653d"
+    },
+    {
+      "id": "FR-CART",
+      "type": "functional-requirement",
+      "title": "Keep the cart",
+      "status": "active",
+      "path": "docs/product/model/requirements/functional/fr-cart.md",
+      "digest": "sha256:b6b8564f1cd5acdda52c5a6868b71c72662214cd4816a7bc83f336c2c2deba81"
+    },
+    {
+      "id": "FR-CHECKOUT",
+      "type": "functional-requirement",
+      "title": "Confirm paid orders",
+      "status": "active",
+      "path": "docs/product/model/requirements/functional/fr-checkout.md",
+      "digest": "sha256:327b3b017983db47b377bb54e85c5d1f8d5eb5c37713c2b04cef89a926e9274d"
+    },
+    {
+      "id": "FR-ORDER-TRACKING",
+      "type": "functional-requirement",
+      "title": "Show the order state",
+      "status": "active",
+      "path": "docs/product/model/requirements/functional/fr-order-tracking.md",
+      "digest": "sha256:bb4067e5060e41aaf9e4023733d368fca14b5e1a1c8241670592cf382b1e3785"
+    },
+    {
+      "id": "FR-REFUND-REQUEST",
+      "type": "functional-requirement",
+      "title": "Accept refund requests in the window",
+      "status": "active",
+      "path": "docs/product/model/requirements/functional/fr-refund-request.md",
+      "digest": "sha256:bd993625cc064687e6696a38ab1958e112d3468010a59c32e372b089640991a3"
+    },
+    {
+      "id": "FR-SEARCH",
+      "type": "functional-requirement",
+      "title": "Search by name and category",
+      "status": "active",
+      "path": "docs/product/model/requirements/functional/fr-search.md",
+      "digest": "sha256:2b100fcb81727afc96f0aef507bb61a1555539c013a19802e7368ce05324e357"
+    },
+    {
+      "id": "JRN-FOLLOW-ORDER",
+      "type": "journey",
+      "title": "Follow an order",
+      "status": "active",
+      "path": "docs/product/model/journeys/jrn-follow-order.md",
+      "digest": "sha256:d3025f98a9a7b21ebd59f639e404d00c150ce51eb462fc5341ff2ccd0e59e4f6"
+    },
+    {
+      "id": "JRN-PURCHASE",
+      "type": "journey",
+      "title": "Buy products",
+      "status": "active",
+      "path": "docs/product/model/journeys/jrn-purchase.md",
+      "digest": "sha256:818295648b818b40bcee423eba6b9ef956e5d8ed66f9978191bc44eca807cc23"
+    },
+    {
+      "id": "JRN-REFUND",
+      "type": "journey",
+      "title": "Get money back",
+      "status": "active",
+      "path": "docs/product/model/journeys/jrn-refund.md",
+      "digest": "sha256:ad4344056e2219d8797d37058d574dfaad7512d63785e91dcdee4464bc7c5d27"
+    },
+    {
+      "id": "QR-REFUND-AUDIT",
+      "type": "quality-requirement",
+      "title": "Auditable refunds",
+      "status": "active",
+      "path": "docs/product/model/requirements/quality/qr-refund-audit.md",
+      "digest": "sha256:5c344b1569a76b8618c7caf2e11d5c05f4770a859e0495bd1ee5057bf2dc93b5"
+    },
+    {
+      "id": "QR-SEARCH-LATENCY",
+      "type": "quality-requirement",
+      "title": "Fast search",
+      "status": "active",
+      "path": "docs/product/model/requirements/quality/qr-search-latency.md",
+      "digest": "sha256:57a1ce9c4b4e144208565562972d96bfb75983da2a756dc056e759ffd43e0286"
+    },
+    {
+      "id": "SB-CANCEL-001",
+      "type": "structured-behaviour",
+      "title": "Cancel after dispatch",
+      "status": "active",
+      "path": "docs/product/model/behaviours/sb-cancel-001.md",
+      "digest": "sha256:594025b422ef56d322c1087bd399d4fe41c6aac86e2c7b9673998707d1945a04"
+    },
+    {
+      "id": "SB-REFUND-001",
+      "type": "structured-behaviour",
+      "title": "Refund on the last day",
+      "status": "active",
+      "path": "docs/product/model/behaviours/sb-refund-001.md",
+      "digest": "sha256:793290a732df597dd1c1537746a67611575d3eb677b05ed43d9b896d00a7c82f"
+    },
+    {
+      "id": "SB-REFUND-002",
+      "type": "structured-behaviour",
+      "title": "Refund one day late",
+      "status": "active",
+      "path": "docs/product/model/behaviours/sb-refund-002.md",
+      "digest": "sha256:dc3b56cde636e39390ff3b81d4bb383fd08a00e3a4773337487e0473662c0fd1"
+    },
+    {
+      "id": "TERM-CART",
+      "type": "domain-term",
+      "title": "Cart",
+      "status": "active",
+      "path": "docs/product/model/domain/terms/term-cart.md",
+      "digest": "sha256:94cf4d323a46af19d96d9b1b231a4ed419c9edb980e48cbb25fd287c241ecf70"
+    },
+    {
+      "id": "TERM-DELIVERY",
+      "type": "domain-term",
+      "title": "Delivery",
+      "status": "active",
+      "path": "docs/product/model/domain/terms/term-delivery.md",
+      "digest": "sha256:fced0285bf9d8ebad1fa037baeb31b10f9a202a16ff983c4290ffd48f6644b25"
+    },
+    {
+      "id": "TERM-ORDER",
+      "type": "domain-term",
+      "title": "Order",
+      "status": "active",
+      "path": "docs/product/model/domain/terms/term-order.md",
+      "digest": "sha256:d49689c9d821b526a685f704eca9f2279833e6de65b1b0b2e25875983d9c0dac"
+    },
+    {
+      "id": "TERM-PAYMENT",
+      "type": "domain-term",
+      "title": "Payment",
+      "status": "active",
+      "path": "docs/product/model/domain/terms/term-payment.md",
+      "digest": "sha256:14cb7fe1b10d4b46fbe83b4fc48fbc4a63a6a7eeeca8466c26537883b9dcbc80"
+    },
+    {
+      "id": "TERM-REFUND",
+      "type": "domain-term",
+      "title": "Refund",
+      "status": "active",
+      "path": "docs/product/model/domain/terms/term-refund.md",
+      "digest": "sha256:6aa943b6f09bacfef2f6a5fb3ec53ac6c862e3071505c370dd8bfe9793c83f59"
+    },
+    {
+      "id": "UC-ADD-TO-CART",
+      "type": "use-case",
+      "title": "Add to cart",
+      "status": "active",
+      "path": "docs/product/model/use-cases/uc-add-to-cart.md",
+      "digest": "sha256:d57968bfb0ceaa561c59d421448e425fdcc5ee16174df35f3f3e3d99849432db"
+    },
+    {
+      "id": "UC-APPROVE-REFUND",
+      "type": "use-case",
+      "title": "Approve a refund",
+      "status": "active",
+      "path": "docs/product/model/use-cases/uc-approve-refund.md",
+      "digest": "sha256:2b50529f6162f88240e265582c374abc1fbe6c2c78560ed4de2fa72650fb6d1f"
+    },
+    {
+      "id": "UC-BROWSE-CATALOG",
+      "type": "use-case",
+      "title": "Browse the catalogue",
+      "status": "active",
+      "path": "docs/product/model/use-cases/uc-browse-catalog.md",
+      "digest": "sha256:6e0004764e002d29be498efe04b62c19a75b91ad4d7094e6df378bdf5321b6be"
+    },
+    {
+      "id": "UC-CANCEL-ORDER",
+      "type": "use-case",
+      "title": "Cancel an order",
+      "status": "active",
+      "path": "docs/product/model/use-cases/uc-cancel-order.md",
+      "digest": "sha256:c8e8b977191dc9b2069eb7b58131132a552755a81b92fca2709a66b127c2ba73"
+    },
+    {
+      "id": "UC-CHECKOUT",
+      "type": "use-case",
+      "title": "Check out",
+      "status": "active",
+      "path": "docs/product/model/use-cases/uc-checkout.md",
+      "digest": "sha256:ea61017503472d555e7782f2256b3b7af7ee12068dd091caa822a68f03020a8e"
+    },
+    {
+      "id": "UC-PAY",
+      "type": "use-case",
+      "title": "Pay for an order",
+      "status": "active",
+      "path": "docs/product/model/use-cases/uc-pay.md",
+      "digest": "sha256:8ea36ce9a1916997292906ae283d63ce057e905ede2095a6dc61e36f03e7938a"
+    },
+    {
+      "id": "UC-REQUEST-REFUND",
+      "type": "use-case",
+      "title": "Request a refund",
+      "status": "active",
+      "path": "docs/product/model/use-cases/uc-request-refund.md",
+      "digest": "sha256:96b074c6b503d89b9f8d64843f47bdf03fc11cd9218c7e32f2896ede7a932dd6"
+    },
+    {
+      "id": "UC-SEARCH-PRODUCTS",
+      "type": "use-case",
+      "title": "Search products",
+      "status": "active",
+      "path": "docs/product/model/use-cases/uc-search-products.md",
+      "digest": "sha256:112d1d2a892a40ce5d4b309023bf724f9969aa3861825b361334506b129030f5"
+    },
+    {
+      "id": "UC-TRACK-ORDER",
+      "type": "use-case",
+      "title": "Track an order",
+      "status": "active",
+      "path": "docs/product/model/use-cases/uc-track-order.md",
+      "digest": "sha256:36e94484b2e3d9a4315f6d13895e7e9835d84c5442ca3cf102bc9abc2d235a6f"
+    },
+    {
+      "id": "UC-VIEW-ORDER-HISTORY",
+      "type": "use-case",
+      "title": "View order history",
+      "status": "active",
+      "path": "docs/product/model/use-cases/uc-view-order-history.md",
+      "digest": "sha256:702c554b328dfb5a602b50b3e72fbf74b9832e3180c43fc45a6b1ce2e4199be2"
+    }
+  ],
+  "edges": [
+    {
+      "from": "BR-CANCEL-001",
+      "kind": "applies-to",
+      "to": "UC-CANCEL-ORDER"
+    },
+    {
+      "from": "BR-CANCEL-001",
+      "kind": "uses-terms",
+      "to": "TERM-ORDER"
+    },
+    {
+      "from": "BR-PAYMENT-001",
+      "kind": "applies-to",
+      "to": "UC-CHECKOUT"
+    },
+    {
+      "from": "BR-PAYMENT-001",
+      "kind": "applies-to",
+      "to": "UC-PAY"
+    },
+    {
+      "from": "BR-PAYMENT-001",
+      "kind": "uses-terms",
+      "to": "TERM-ORDER"
+    },
+    {
+      "from": "BR-PAYMENT-001",
+      "kind": "uses-terms",
+      "to": "TERM-PAYMENT"
+    },
+    {
+      "from": "BR-REFUND-001",
+      "kind": "applies-to",
+      "to": "UC-APPROVE-REFUND"
+    },
+    {
+      "from": "BR-REFUND-001",
+      "kind": "applies-to",
+      "to": "UC-REQUEST-REFUND"
+    },
+    {
+      "from": "BR-REFUND-001",
+      "kind": "uses-terms",
+      "to": "TERM-DELIVERY"
+    },
+    {
+      "from": "BR-REFUND-001",
+      "kind": "uses-terms",
+      "to": "TERM-REFUND"
+    },
+    {
+      "from": "CON-CARD-DATA",
+      "kind": "applies-to",
+      "to": "UC-PAY"
+    },
+    {
+      "from": "CON-CARD-DATA",
+      "kind": "uses-terms",
+      "to": "TERM-PAYMENT"
+    },
+    {
+      "from": "CON-ORDER-OWNERSHIP",
+      "kind": "applies-to",
+      "to": "UC-CANCEL-ORDER"
+    },
+    {
+      "from": "CON-ORDER-OWNERSHIP",
+      "kind": "applies-to",
+      "to": "UC-REQUEST-REFUND"
+    },
+    {
+      "from": "CON-ORDER-OWNERSHIP",
+      "kind": "applies-to",
+      "to": "UC-TRACK-ORDER"
+    },
+    {
+      "from": "CON-ORDER-OWNERSHIP",
+      "kind": "applies-to",
+      "to": "UC-VIEW-ORDER-HISTORY"
+    },
+    {
+      "from": "CON-ORDER-OWNERSHIP",
+      "kind": "uses-terms",
+      "to": "TERM-ORDER"
+    },
+    {
+      "from": "FR-CANCEL",
+      "kind": "derived-from",
+      "to": "BR-CANCEL-001"
+    },
+    {
+      "from": "FR-CANCEL",
+      "kind": "derived-from",
+      "to": "UC-CANCEL-ORDER"
+    },
+    {
+      "from": "FR-CANCEL",
+      "kind": "uses-terms",
+      "to": "TERM-ORDER"
+    },
+    {
+      "from": "FR-CART",
+      "kind": "derived-from",
+      "to": "UC-ADD-TO-CART"
+    },
+    {
+      "from": "FR-CART",
+      "kind": "uses-terms",
+      "to": "TERM-CART"
+    },
+    {
+      "from": "FR-CHECKOUT",
+      "kind": "derived-from",
+      "to": "BR-PAYMENT-001"
+    },
+    {
+      "from": "FR-CHECKOUT",
+      "kind": "derived-from",
+      "to": "UC-CHECKOUT"
+    },
+    {
+      "from": "FR-CHECKOUT",
+      "kind": "uses-terms",
+      "to": "TERM-ORDER"
+    },
+    {
+      "from": "FR-ORDER-TRACKING",
+      "kind": "derived-from",
+      "to": "UC-TRACK-ORDER"
+    },
+    {
+      "from": "FR-ORDER-TRACKING",
+      "kind": "uses-terms",
+      "to": "TERM-DELIVERY"
+    },
+    {
+      "from": "FR-ORDER-TRACKING",
+      "kind": "uses-terms",
+      "to": "TERM-ORDER"
+    },
+    {
+      "from": "FR-REFUND-REQUEST",
+      "kind": "derived-from",
+      "to": "BR-REFUND-001"
+    },
+    {
+      "from": "FR-REFUND-REQUEST",
+      "kind": "derived-from",
+      "to": "UC-REQUEST-REFUND"
+    },
+    {
+      "from": "FR-REFUND-REQUEST",
+      "kind": "uses-terms",
+      "to": "TERM-DELIVERY"
+    },
+    {
+      "from": "FR-REFUND-REQUEST",
+      "kind": "uses-terms",
+      "to": "TERM-REFUND"
+    },
+    {
+      "from": "FR-SEARCH",
+      "kind": "derived-from",
+      "to": "UC-SEARCH-PRODUCTS"
+    },
+    {
+      "from": "JRN-FOLLOW-ORDER",
+      "kind": "primary-actor",
+      "to": "ACT-CUSTOMER"
+    },
+    {
+      "from": "JRN-FOLLOW-ORDER",
+      "kind": "steps[].use-case",
+      "to": "UC-CANCEL-ORDER"
+    },
+    {
+      "from": "JRN-FOLLOW-ORDER",
+      "kind": "steps[].use-case",
+      "to": "UC-TRACK-ORDER"
+    },
+    {
+      "from": "JRN-PURCHASE",
+      "kind": "primary-actor",
+      "to": "ACT-CUSTOMER"
+    },
+    {
+      "from": "JRN-PURCHASE",
+      "kind": "steps[].use-case",
+      "to": "UC-ADD-TO-CART"
+    },
+    {
+      "from": "JRN-PURCHASE",
+      "kind": "steps[].use-case",
+      "to": "UC-BROWSE-CATALOG"
+    },
+    {
+      "from": "JRN-PURCHASE",
+      "kind": "steps[].use-case",
+      "to": "UC-CHECKOUT"
+    },
+    {
+      "from": "JRN-PURCHASE",
+      "kind": "steps[].use-case",
+      "to": "UC-PAY"
+    },
+    {
+      "from": "JRN-PURCHASE",
+      "kind": "steps[].use-case",
+      "to": "UC-SEARCH-PRODUCTS"
+    },
+    {
+      "from": "JRN-REFUND",
+      "kind": "primary-actor",
+      "to": "ACT-CUSTOMER"
+    },
+    {
+      "from": "JRN-REFUND",
+      "kind": "steps[].use-case",
+      "to": "UC-APPROVE-REFUND"
+    },
+    {
+      "from": "JRN-REFUND",
+      "kind": "steps[].use-case",
+      "to": "UC-REQUEST-REFUND"
+    },
+    {
+      "from": "JRN-REFUND",
+      "kind": "steps[].use-case",
+      "to": "UC-VIEW-ORDER-HISTORY"
+    },
+    {
+      "from": "QR-REFUND-AUDIT",
+      "kind": "applies-to",
+      "to": "UC-APPROVE-REFUND"
+    },
+    {
+      "from": "QR-REFUND-AUDIT",
+      "kind": "applies-to",
+      "to": "UC-REQUEST-REFUND"
+    },
+    {
+      "from": "QR-SEARCH-LATENCY",
+      "kind": "applies-to",
+      "to": "UC-BROWSE-CATALOG"
+    },
+    {
+      "from": "QR-SEARCH-LATENCY",
+      "kind": "applies-to",
+      "to": "UC-SEARCH-PRODUCTS"
+    },
+    {
+      "from": "SB-CANCEL-001",
+      "kind": "illustrates",
+      "to": "BR-CANCEL-001"
+    },
+    {
+      "from": "SB-CANCEL-001",
+      "kind": "uses-terms",
+      "to": "TERM-ORDER"
+    },
+    {
+      "from": "SB-REFUND-001",
+      "kind": "illustrates",
+      "to": "BR-REFUND-001"
+    },
+    {
+      "from": "SB-REFUND-001",
+      "kind": "uses-terms",
+      "to": "TERM-DELIVERY"
+    },
+    {
+      "from": "SB-REFUND-001",
+      "kind": "uses-terms",
+      "to": "TERM-REFUND"
+    },
+    {
+      "from": "SB-REFUND-002",
+      "kind": "illustrates",
+      "to": "BR-REFUND-001"
+    },
+    {
+      "from": "SB-REFUND-002",
+      "kind": "uses-terms",
+      "to": "TERM-DELIVERY"
+    },
+    {
+      "from": "SB-REFUND-002",
+      "kind": "uses-terms",
+      "to": "TERM-REFUND"
+    },
+    {
+      "from": "TERM-CART",
+      "kind": "defined-in",
+      "to": "BC-ORDERING"
+    },
+    {
+      "from": "TERM-DELIVERY",
+      "kind": "defined-in",
+      "to": "BC-ORDERING"
+    },
+    {
+      "from": "TERM-DELIVERY",
+      "kind": "uses-terms",
+      "to": "TERM-ORDER"
+    },
+    {
+      "from": "TERM-ORDER",
+      "kind": "defined-in",
+      "to": "BC-ORDERING"
+    },
+    {
+      "from": "TERM-PAYMENT",
+      "kind": "defined-in",
+      "to": "BC-PAYMENTS"
+    },
+    {
+      "from": "TERM-PAYMENT",
+      "kind": "uses-terms",
+      "to": "TERM-ORDER"
+    },
+    {
+      "from": "TERM-REFUND",
+      "kind": "defined-in",
+      "to": "BC-PAYMENTS"
+    },
+    {
+      "from": "TERM-REFUND",
+      "kind": "uses-terms",
+      "to": "TERM-PAYMENT"
+    },
+    {
+      "from": "UC-ADD-TO-CART",
+      "kind": "bounded-context",
+      "to": "BC-ORDERING"
+    },
+    {
+      "from": "UC-ADD-TO-CART",
+      "kind": "primary-actor",
+      "to": "ACT-CUSTOMER"
+    },
+    {
+      "from": "UC-ADD-TO-CART",
+      "kind": "uses-terms",
+      "to": "TERM-CART"
+    },
+    {
+      "from": "UC-APPROVE-REFUND",
+      "kind": "bounded-context",
+      "to": "BC-PAYMENTS"
+    },
+    {
+      "from": "UC-APPROVE-REFUND",
+      "kind": "governed-by",
+      "to": "BR-REFUND-001"
+    },
+    {
+      "from": "UC-APPROVE-REFUND",
+      "kind": "primary-actor",
+      "to": "ACT-SUPPORT-AGENT"
+    },
+    {
+      "from": "UC-APPROVE-REFUND",
+      "kind": "supporting-actors",
+      "to": "ACT-PAYMENT-SERVICE"
+    },
+    {
+      "from": "UC-APPROVE-REFUND",
+      "kind": "uses-terms",
+      "to": "TERM-REFUND"
+    },
+    {
+      "from": "UC-BROWSE-CATALOG",
+      "kind": "bounded-context",
+      "to": "BC-ORDERING"
+    },
+    {
+      "from": "UC-BROWSE-CATALOG",
+      "kind": "primary-actor",
+      "to": "ACT-CUSTOMER"
+    },
+    {
+      "from": "UC-CANCEL-ORDER",
+      "kind": "bounded-context",
+      "to": "BC-ORDERING"
+    },
+    {
+      "from": "UC-CANCEL-ORDER",
+      "kind": "governed-by",
+      "to": "BR-CANCEL-001"
+    },
+    {
+      "from": "UC-CANCEL-ORDER",
+      "kind": "primary-actor",
+      "to": "ACT-CUSTOMER"
+    },
+    {
+      "from": "UC-CANCEL-ORDER",
+      "kind": "uses-terms",
+      "to": "TERM-ORDER"
+    },
+    {
+      "from": "UC-CHECKOUT",
+      "kind": "bounded-context",
+      "to": "BC-ORDERING"
+    },
+    {
+      "from": "UC-CHECKOUT",
+      "kind": "governed-by",
+      "to": "BR-PAYMENT-001"
+    },
+    {
+      "from": "UC-CHECKOUT",
+      "kind": "primary-actor",
+      "to": "ACT-CUSTOMER"
+    },
+    {
+      "from": "UC-CHECKOUT",
+      "kind": "uses-terms",
+      "to": "TERM-CART"
+    },
+    {
+      "from": "UC-CHECKOUT",
+      "kind": "uses-terms",
+      "to": "TERM-ORDER"
+    },
+    {
+      "from": "UC-PAY",
+      "kind": "bounded-context",
+      "to": "BC-PAYMENTS"
+    },
+    {
+      "from": "UC-PAY",
+      "kind": "governed-by",
+      "to": "BR-PAYMENT-001"
+    },
+    {
+      "from": "UC-PAY",
+      "kind": "primary-actor",
+      "to": "ACT-CUSTOMER"
+    },
+    {
+      "from": "UC-PAY",
+      "kind": "supporting-actors",
+      "to": "ACT-PAYMENT-SERVICE"
+    },
+    {
+      "from": "UC-PAY",
+      "kind": "uses-terms",
+      "to": "TERM-ORDER"
+    },
+    {
+      "from": "UC-PAY",
+      "kind": "uses-terms",
+      "to": "TERM-PAYMENT"
+    },
+    {
+      "from": "UC-REQUEST-REFUND",
+      "kind": "bounded-context",
+      "to": "BC-PAYMENTS"
+    },
+    {
+      "from": "UC-REQUEST-REFUND",
+      "kind": "governed-by",
+      "to": "BR-REFUND-001"
+    },
+    {
+      "from": "UC-REQUEST-REFUND",
+      "kind": "primary-actor",
+      "to": "ACT-CUSTOMER"
+    },
+    {
+      "from": "UC-REQUEST-REFUND",
+      "kind": "uses-terms",
+      "to": "TERM-DELIVERY"
+    },
+    {
+      "from": "UC-REQUEST-REFUND",
+      "kind": "uses-terms",
+      "to": "TERM-REFUND"
+    },
+    {
+      "from": "UC-SEARCH-PRODUCTS",
+      "kind": "bounded-context",
+      "to": "BC-ORDERING"
+    },
+    {
+      "from": "UC-SEARCH-PRODUCTS",
+      "kind": "primary-actor",
+      "to": "ACT-CUSTOMER"
+    },
+    {
+      "from": "UC-TRACK-ORDER",
+      "kind": "bounded-context",
+      "to": "BC-ORDERING"
+    },
+    {
+      "from": "UC-TRACK-ORDER",
+      "kind": "primary-actor",
+      "to": "ACT-CUSTOMER"
+    },
+    {
+      "from": "UC-TRACK-ORDER",
+      "kind": "uses-terms",
+      "to": "TERM-DELIVERY"
+    },
+    {
+      "from": "UC-TRACK-ORDER",
+      "kind": "uses-terms",
+      "to": "TERM-ORDER"
+    },
+    {
+      "from": "UC-VIEW-ORDER-HISTORY",
+      "kind": "bounded-context",
+      "to": "BC-ORDERING"
+    },
+    {
+      "from": "UC-VIEW-ORDER-HISTORY",
+      "kind": "primary-actor",
+      "to": "ACT-CUSTOMER"
+    },
+    {
+      "from": "UC-VIEW-ORDER-HISTORY",
+      "kind": "uses-terms",
+      "to": "TERM-ORDER"
+    }
+  ],
+  "derived": {
+    "owns-terms": {
+      "BC-ORDERING": [
+        "TERM-CART",
+        "TERM-DELIVERY",
+        "TERM-ORDER"
+      ],
+      "BC-PAYMENTS": [
+        "TERM-PAYMENT",
+        "TERM-REFUND"
+      ]
+    }
+  }
+}

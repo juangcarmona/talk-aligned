@@ -1,0 +1,30 @@
+$ npx prodshape validate
+0 error(s), 0 warning(s) across 39 artifact(s)
+
+$ npx prodshape impact BR-REFUND-001
+Structural impact of BR-REFUND-001 (direction: both)
+Structural reachability only - no semantic claim.
+  put in question by a change to BR-REFUND-001 (7):
+    FR-REFUND-REQUEST (functional-requirement) via derived-from [dependency]
+    SB-REFUND-001 (structured-behaviour) via illustrates [dependency]
+    SB-REFUND-002 (structured-behaviour) via illustrates [dependency]
+    UC-APPROVE-REFUND (use-case) via applies-to [governance]
+    UC-APPROVE-REFUND (use-case) via governed-by [dependency]
+    UC-REQUEST-REFUND (use-case) via applies-to [governance]
+    UC-REQUEST-REFUND (use-case) via governed-by [dependency]
+  direct (7):
+    [incoming] FR-REFUND-REQUEST (functional-requirement) via derived-from
+    [incoming] SB-REFUND-001 (structured-behaviour) via illustrates
+    [incoming] SB-REFUND-002 (structured-behaviour) via illustrates
+    [incoming] UC-APPROVE-REFUND (use-case) via governed-by
+    [incoming] UC-REQUEST-REFUND (use-case) via governed-by
+    [outgoing] TERM-DELIVERY (domain-term) via uses-terms
+    [outgoing] TERM-REFUND (domain-term) via uses-terms
+  transitive (7):
+    [incoming] CON-ORDER-OWNERSHIP (constraint) at distance 2
+    [incoming] JRN-REFUND (journey) at distance 2
+    [incoming] QR-REFUND-AUDIT (quality-requirement) at distance 2
+    [outgoing] BC-ORDERING (bounded-context) at distance 2
+    [outgoing] BC-PAYMENTS (bounded-context) at distance 2
+    [outgoing] TERM-ORDER (domain-term) at distance 2
+    [outgoing] TERM-PAYMENT (domain-term) at distance 2

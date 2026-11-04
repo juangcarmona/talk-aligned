@@ -6,41 +6,69 @@ Draft for Juan to rewrite in his own words. The presenter window reads this file
 
 Hi, I'm Juan, Software Development Engineer at Plain Concepts. In the next forty minutes you'll see one product rule, the files that cite it, and the moment CI notices it changed.
 
-## origin
+## lifecycle
 
-This didn't start as a theory. We'd been doing Spec-Driven Development for a while at Plain Concepts, internal projects and for clients I can't name. And intuitively we knew it wasn't enough to define what we wanted again in every SDD cycle. [click] Because we kept seeing drift: what the AI thought we wanted versus what we actually wanted. Every iteration meant restructuring. Rework, again and again. [click] So when a client asked us for a real proof of concept, we said: let's do it right. Solid architecture foundations, and define the MVP as early as possible. Yes, agile, all of that. But what do we actually know about the product we want to build? [click] We wrote it down. With what plain Markdown gives you: simple files, a folder structure. And with what product engineering gives you: actors, use cases, business rules. Plus a domain definition, Domain-Driven Design. [click] Look at what that changes. This is a Clean Architecture with CQRS, only the layers: API, application split into commands and queries, domain, infrastructure. On the left, before: SDD alone. Grey is what we expected from this delivery. Colour is what got delivered. They don't match, and the delivery is spread across every layer. [click] Second delivery. The expectations have moved. The delivery touches every layer again, and look at the first one: most of its pieces moved too. [click] Third. Every delivery changes a lot of things, and each change is bigger than the last. A jumble. [click] On the right, after. Intent is defined and architecture is defined. In grey, the product we want, in slices. Each slice is narrow: a bit of API, one side of CQRS, some domain, some infrastructure. [click] First slice. Boom: the pieces land almost where they were. [click] Second. Nothing from before moves. [click] Third. And our clients' products started drifting much less, and moving much faster. Because every SDD change was iterative and incremental: SDD now delivered one slice of a product we had already defined. The fourth is still grey: we already know what comes next.
+This is the software lifecycle, left to right: from an idea to maintenance. And this is where we are today: development. [click] This is where the AI investment is going: code assistants, test generators, review bots, CI copilots, incident analysers. Development, DevOps, operations. Your territory. Useful, and getting saturated. [click] As implementation gets automated, the bottleneck moves left. To the product: who is it for, which behaviour should exist, which rules govern it. That's where the next opportunity is.
+
+## fragments
+
+And on the left there's a jumble. Product decisions in Jira. Conversations in Slack or Teams. Long reasoning in docs, or in some Confluence page. Half of it in meetings nobody wrote down. The rest in code comments and in the heads of two senior engineers. AI doesn't have a product model. It has fragments. And it has to rebuild meaning from those fragments on every invocation, with no guarantee it rebuilds the same meaning twice.
+
+## direction
+
+Before the tools, a word about people and AI. A team without direction is a boat without a lighthouse: it builds at random. And vibe coding is exactly that: building at random, very fast. [click] With direction it's different. Every decision is still about today's problem, but it keeps the destination in sight, directly or indirectly. That's what a team that knows the product has: direction, a guide, a roadmap.
 
 ## noise
 
-Here's the noise in five seconds. Three specs, three wordings, two meanings: thirty days from purchase is not thirty days from delivery. [click] A real public case: Shillinq, an open source accounting suite. 160 OpenSpec specs, 273 archived changes. Serious SDD. And the official VAT spec forbids a service and, 380 lines further down the same file, requires it. Both MUST. It shipped two models of the same tax form, the wrong schema at runtime, and a security hole. I told the maintainers; nobody answered. [click] An issue is a photo of one moment. Specs that nobody consolidates keep piling up those photos. There are sync mechanisms, but the context grows past what the AI can manage. And validation checks shape, not meaning.
+Spec-Driven Development was the answer to drift on the implementation side. Let's take one rule: the refund. One concept, one rule. And with many specs, what happens is that the same rule ends up written several ways. [click] Billing: refunds are issued for purchases made in the last 30 days. From the purchase. [click] Checkout: 30 days from delivery. [click] Support: less than a month. One concept, one rule, and three specs pointing three different ways. Each one was a snapshot of what someone wanted at that moment. [click] Now multiply. A hundred and sixty specs, each rebuilt and redefined in its own cycle, each leaving artifacts behind that nobody consolidates. Some point the opposite way. [click] This is a real case: Shillinq, an open-source accounting suite built with SDD. 160 OpenSpec specs, 273 archived changes. Its VAT spec forbids a service and, 380 lines further down in the same file, requires it. Both MUST. I told the maintainers and nobody answered. [click] And validation checks shape, not meaning.
+
+## before
+
+Now on the code itself. Every dot is a block of code tokens. On the left, the backlog. No product definition: this is what we have in our heads at the start, a cloud. [click] Ticket 101, add to cart. One SDD cycle. Something gets written, following our reading of the ticket. [click] Next tickets: check out and pay. Another cycle, a different reading, and almost everything moves again. The earlier ticket is reopened. It isn't only chaos: it's uncertainty. Ask the same thing twice and you get different code. [click] Three more tickets. Undo, redo, a small increment. [click] Here we threw three features away. They didn't fit what we now understood. [click] The last tickets. The shape begins to show, after five cycles rebuilding everything. [click] Indeterminism leads to drift, and drift leads to rework. A team that doesn't know the product only sees the ticket in front of it.
+
+## not-truth
+
+So the conclusion of this first part: the specs should not be our source of truth. Why? Because we've just seen how much noise they make. [click] An AI keeps defining and redefining: entities, business rules, the refund. And language models are inherently non-deterministic, so every redefinition comes out slightly different. Those small variations chain one onto the next, and that's drift. And if the AI already has in its context versions with divergent meanings, what comes out is chaos: divergence. [click] That's the problem with large spec sets. It isn't that a spec can't be a source of truth. It's that the more specs there are, the more chances divergence has to start. [click] The specs must feed from a source of truth.
 
 ## two-truths
 
-So the first decision: two sources of truth. Intent, what we want to build, in docs/product. Architecture, how we build it, in docs/architecture. They're related, they cite each other, but you never mix them. [click] In my own tools it's written down: ProductShape owns product intent, ArcShape owns architecture evidence, Lighthouse owns the delivery baseline.
+So we put in a good source of truth. Two, in fact. As software engineers we know the architecture has to be sketched as early as possible, and then it evolves. The same goes for the product: sketch early what we want, an MVP to iterate on. The intent, what we build, in docs/product. The architecture, how we build it, in docs/architecture. Related, citing each other, never mixed up. [click] And SDD feeds from them: specs, agents and code read both. That is their source of truth.
 
-## artifacts
+## after
 
-Intent is not one big document. It's small artifacts, each with a stable ID: actors, journeys, use cases, business rules, terms, bounded contexts, functional and quality requirements, constraints, and structured behaviour. Each relationship is written once, on one artifact; the graph is compiled. [click] Here's a real one from ArcShape. Its only business rule says that ArcShape must cite the approved product definition and never copy it. The architecture tool, defined by a rule that says architecture doesn't own product truth.
+Now the same system with the product defined, and a backlog that starts with the architecture. The future can already be sensed: the outline is there, a bit blurred, before anything is written. [click] Ticket 101: authentication and authorization. It runs across every slice. [click] Cross-cutting concerns: logs, validation, error handling. [click] The domain model, domain-driven design: the language every slice will share. [click] And the infrastructure: data, CI/CD. These first tickets lay the foundations of a vertical slice architecture. [click] Now the slices, one by one. Add to cart and check out: each lands in its own vertical, on top of what's already there. [click] Pay and cancel. Nothing built earlier moves; every earlier ticket stays done. [click] Request a refund and approve it. It's paint by numbers. [click] Browse, search, track, history: done. [click] Direction gives us a guide, and the guide gets us to delivery.
+
+## graph
+
+This is a small demo shop I defined for this talk, compiled by ProductShape. First the actors: customer, support agent, payment service. [click] The journeys they follow. [click] The use cases: six commands and four queries. [click] The business rules and the domain: terms and bounded contexts. Here is our refund window. [click] And the requirements and behaviour, the Given/When/Then examples tests will come from. Every relationship is written once, on one artifact. I can move around it: this is the product, not a document about it.
+
+## product-code
+
+Zoom out. On the left, the product. On the right, its code: the vertical-slice system, one feature per use case. A use case is its feature. The customer touches the presentation of every feature they take part in. The refund window lives in the domain of two features. A constraint cuts across. When the product is a graph, you can see where every decision lands in the code.
 
 ## cite
 
-Now the core idea. The rule lives once. [click] Everyone who depends on it cites it: the constraints section, the cross-cutting concepts, an implementation backlog. [click] A citation is one line: the ID and a SHA-256 of the canonical content. [click] ArcShape has 370 of these in 55 files. Nobody restates the rule; they point at it.
+Now the core idea, on the demo shop. The refund window lives once: BR-REFUND-001, 30 days from delivery. [click] Everything that depends on it cites it: the OpenSpec spec, the agent's skill, the code and the test. [click] Each citation is one line: pdac:cite, the ID and a SHA-256 digest of the rule's canonical content. In Markdown it's a comment; the code and the test cite through a small ledger beside them. [click] Four citations of the rule, four current. Nobody rewrites the rule; they all point at it.
 
 ## drift
 
-Watch what happens when it changes. This is ProductShape's release contract, the exact block CI runs on every release. One rule, one citation. [click] The window goes from 30 to 14 days. [click] Verify again: stale, PRODUCT061, exit code 1. The job fails. Drift is detected instead of silent. [click] Four states: current, stale, tampered when an embedded copy was edited, unresolved when the ID doesn't exist. By default stale is a warning; the repository decides to make it an error.
+Now let's change it. Same rule, same four citations, all current. Verify: six citations in the repository, all current, exit zero. [click] Finance wants 14 days. That's a Product Change, CHG-REFUND-002: it changes the rule and its two examples. The tool validates it as an overlay, a person approves it and apply writes it. Apply commits nothing: it tells you to open a pull request so a human can accept it. [click] Verify again. The digest no longer matches, so one by one they go stale: the spec, the agent skill, the code and the test, and the end-to-end scenarios too. PRODUCT061, exit 1. The job fails. Drift is caught instead of slipping through. [click] Four states: current; stale; tampered, when someone edits an embedded copy; and unresolved, when the ID doesn't exist.
 
 ## change
 
 And how does a decision change, then? Through a Product Change: a file with the delta and its reason. The tool validates it as an overlay without touching the baseline. A person approves. Apply writes it; it creates no commits. Then a normal PR, CI, and a person merges. [click] Apply is not acceptance; the merge is. [click] Tools check structure. AI skills draft and interpret impact. People approve and merge. No tool approves or merges, ever.
 
-## dogfooding
+## trust
 
-Does it work? ProductShape defines itself with its own method: first commit on 25 July, the same day I published the article, and it's on 0.22.1 now. ArcShape was defined with it from its first baseline, CHG-INITIAL. Lighthouse too. [click] And I know of people already using the methodology, at least conceptually, and some with the verification mechanisms in their own projects.
+Citations keep the documentation from drifting: specs, skills, code and tests point at the same rule, and CI knows when one falls behind. But that's the documentation. At a functional level: is what was built what had to be built? [click] In other words: can we trust AI? This is where tests come in. And the question is whether this adds reliability.
 
-## limits
+## tests
 
-Honest part. Structural impact is not semantic impact. If two accepted artifacts contradict each other, both validate; PDaC puts them in one graph where a reviewer can see them, which is better than 380 lines apart, but it's not a guarantee. [click] And it's not finished. How it fits SDD flows and agentic workflows is still being defined.
+And this changes testing. Before, the classic pyramid: few end-to-end tests, because they were expensive to write and, above all, to keep. [click] Now, if product and architecture stay current and are our source of truth, an agent can generate the e2e from the scenarios and maintain them. The shape changes. Unit tests are still the base. [click] Let's step back to the refund, in the graph. The business rule changed: BR-REFUND-001 went from 30 to 14 days. Because it's a graph, I know which structured behaviours illustrate that rule: SB-REFUND-001, refund on the last day, and SB-REFUND-002, refund one day late. Both changed with it: the last day moves from March 31 to March 15, and the day late from April 1 to March 16. Both are stale, and so are the e2e tests that follow them. [hover the rule: both behaviours and all their tests light up; hover each behaviour: only its tests] SB-CANCEL-001 doesn't change: it illustrates another rule, and it stays current. And down here, the lifecycle: the product definition can, and should, go straight to validation. I don't have to look at every behaviour, or every e2e test. Only the ones the change reaches. [click] That's the chain: the product changes, the structured behaviour changes, the e2e tests it guides go stale, and because they're stale I know I have to change them. That lets us keep the e2e implementation maintained automatically, driven by AI, and directed by the product.
+
+## closing
+
+To close. Robert C. Martin, Uncle Bob, the author of Clean Code, said this in July: “My current strategy is to not read any of the code written by my agents.” It caused quite a stir. [click] So if we no longer read the code, what do we read? [click] The intent. The product and the architecture, our two sources of truth, and the tests that follow them. That's what we have to keep alive, cite and verify. [click] And honestly: tools check the shape. If two accepted artifacts contradict each other, both validate. Meaning is still our job.
 
 ## url
 

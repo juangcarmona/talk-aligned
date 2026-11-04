@@ -4,7 +4,7 @@ import { Field } from './Field'
 import { translator, type Lang } from './i18n'
 import { acts, scenes } from './scenes'
 
-export const actColor = ['var(--ink)', 'var(--k-constraint)', 'var(--accent)', 'var(--k-business-rule)', 'var(--k-structured-behaviour)']
+export const actColor = ['var(--ink)', 'var(--k-constraint)', 'var(--accent)', 'var(--k-business-rule)', 'var(--k-journey)', 'var(--k-structured-behaviour)']
 
 function hhmm(minutes: number) {
   return `${String(Math.floor(minutes / 60)).padStart(2, '0')}:${String(minutes % 60).padStart(2, '0')}`

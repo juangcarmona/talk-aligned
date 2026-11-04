@@ -1,6 +1,6 @@
 # Narrative
 
-Eleven scenes, about 40 minutes, then questions. Less is more: two ideas carry the talk, artifacts and citations. Everything else supports them.
+Eighteen scenes, about 40 minutes, then questions. Less is more: two ideas carry the talk, artifacts and citations. Everything else supports them.
 
 ## Sources
 
@@ -35,19 +35,28 @@ Juan's own tools prove it on themselves. ProductShape defines itself with its ow
 
 ## Scenes and timings
 
+Agreed with Juan on 2026-11-04. NUT is the image *Product Definition as Code in a nutshell* in BLOG-PDAC.
+
 | # | Scene | Act | Min | Carries |
 | --- | --- | --- | --- | --- |
 | 1 | `title` | — | 1 | Who, where |
-| 2 | `origin` | I · Why | 5 | SDD cycles kept redefining the product and drifting; a PoC done properly defined the MVP first; then each SDD change was a slice, shown as a before and after on architecture layers |
-| 3 | `noise` | I · Why | 4 | Refund grep, Shillinq: forbidden and mandatory in one file; issues are snapshots; contexts grow |
-| 4 | `two-truths` | II · Define | 4 | Intent vs architecture; related, never confused |
-| 5 | `artifacts` | II · Define | 5 | The artifact kinds, stable IDs, one real artifact |
-| 6 | `cite` | III · Cite | 6 | One rule, its consumers, the citation line, digests |
-| 7 | `drift` | III · Cite | 5 | Change the rule; current / stale / tampered / unresolved; CI fails |
-| 8 | `change` | III · Cite | 4 | Product Change path; tools, agents, people |
-| 9 | `dogfooding` | IV · Own it | 3 | ProductShape, ArcShape, Lighthouse; how it started; others using it |
-| 10 | `limits` | IV · Own it | 2 | What it does not catch; what is still to define |
-| 11 | `url` | — | 1 | `aligned.jgcarmona.com` + QR, then questions |
+| 2 | `lifecycle` | I · Why | 2 | The SDLC timeline; AI investment in the middle; the bottleneck moves left (NUT 1–2) |
+| 3 | `fragments` | I · Why | 2 | "AI doesn't have a product model. It has fragments." (NUT 3) |
+| 4 | `direction` | I · Why | 2 | Without direction, people and AI build at random; with it, every decision aims somewhere |
+| 5 | `noise` | I · Why | 3 | One rule, three refund specs, three directions; ×160; Shillinq |
+| 6 | `before` | I · Why | 3 | Ticket by ticket without a definition: undo, redo, rework |
+| 7 | `not-truth` | I · Why | 1 | Conclusion of Act I: specs should not be the source of truth; they must feed from one |
+| 8 | `two-truths` | II · The turn | 2 | Product and architecture; SDD feeds from them |
+| 9 | `after` | II · The turn | 3 | Architecture first, then slice by slice: each lands in its vertical |
+| 10 | `graph` | III · How | 4 | The demo product as a navigable graph |
+| 11 | `product-code` | III · How | 2 | A node lights the code tokens that implement it |
+| 12 | `cite` | III · How | 3 | BR-REFUND-001 and the four files that cite it |
+| 13 | `drift` | III · How | 3 | CHG-REFUND-002: 30 → 14; the citations go stale; CI fails |
+| 14 | `change` | III · How | 2 | Tools validate, people accept |
+| 15 | `trust` | IV · Verify | 1 | Is what was built what had to be built? Can we trust AI? |
+| 16 | `tests` | IV · Verify | 3 | From pyramid to hourglass; SB-driven e2e know what to adapt |
+| 17 | `closing` | V · Closing | 2 | Uncle Bob doesn't read his agents' code: what do we read? The intent. Tools check shape; meaning is ours |
+| 18 | `url` | — | 1 | `aligned.jgcarmona.com` + QR, then questions |
 | | | | **40** | |
 
 ## Reused from Ingeniería del Software 2.0
@@ -71,7 +80,7 @@ One point cloud runs under every scene, drawn as glyphs (`. : - + x * # @`) in t
 | Scene | Form | Explains |
 | --- | --- | --- |
 | `title` | Loose noise | Knowledge without shape |
-| `origin` | Copies → off-target scatter → pull to centre → four kind nodes → pieces on two architectures: scattered and moving before, landing next to their definition after | From drifting SDD cycles to slices of a defined product |
+| `origin` | Copies → off-target scatter → pull to centre → four kind nodes → two drawings of a vertical-slice CQRS system: a cloud rebuilt every iteration before, a grey outline filled in place after | From drifting SDD cycles to slices of a defined product |
 | `noise` | Many small deformed clusters | Copies of one decision, drifting |
 | `two-truths` | Two separate clusters joined by thin lines | Two sources, related, distinct |
 | `artifacts` | The PDaC logo, then a graph of kind-coloured nodes | Artifacts and relationships |

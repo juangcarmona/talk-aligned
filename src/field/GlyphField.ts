@@ -18,6 +18,11 @@ export function highlight(group: number) {
   live.forEach(field => field.setHighlight(group))
 }
 
+/** Light an arbitrary set of points in neon: 1 per lit point (null turns it off). */
+export function highlightPoints(mask: Float32Array | null) {
+  live.forEach(field => field.setMask(mask))
+}
+
 function atlas() {
   const canvas = document.createElement('canvas')
   canvas.width = 64 * GLYPHS.length
@@ -36,6 +41,7 @@ function atlas() {
 
 const vertexShader = (halo: boolean) => /* glsl */ `
   attribute float gTo;
+  attribute float aMask;
   uniform float uHighlight;
   uniform float uGlow;
   varying float vLit;
@@ -63,7 +69,7 @@ const vertexShader = (halo: boolean) => /* glsl */ `
     p.z += sin(m * 3.14159) * (aSeed - 0.5) * 3.0;
     p.x += sin(uTime * 0.55 + aSeed * 40.0) * 0.035 * uIdle;
     p.y += cos(uTime * 0.45 + aSeed * 31.0) * 0.035 * uIdle;
-    float lit = uGlow * (1.0 - step(0.5, abs(gTo - uHighlight)));
+    float lit = uGlow * max(1.0 - step(0.5, abs(gTo - uHighlight)), aMask);
     float dimmed = uGlow * (1.0 - lit);
     vLit = lit;
     vec3 base = mix(cFrom, cTo, m);
@@ -115,6 +121,7 @@ export class GlyphField {
   private haloMaterial: ShaderMaterial
   private glow = 0
   private glowTarget = 0
+  private sway = 1
   private current: Form
   private target: Form
   private seeds = new Float32Array(POINTS)
@@ -139,6 +146,7 @@ export class GlyphField {
     attr('dTo', this.target.den, 1)
     attr('aSeed', this.seeds, 1)
     attr('gTo', this.target.grp, 1)
+    attr('aMask', new Float32Array(POINTS), 1)
     const uniforms = {
       uAtlas: { value: atlas() }, uMix: { value: 1 }, uTime: { value: 0 }, uIdle: { value: reduced ? 0 : 1 }, uSize: { value: 15 }, uScale: { value: 1 },
       uHighlight: { value: -1 }, uGlow: { value: 0 },
@@ -174,6 +182,7 @@ export class GlyphField {
     this.target = next
     this.write('aFrom', from.pos); this.write('cFrom', from.col); this.write('dFrom', from.den)
     this.write('aTo', next.pos); this.write('cTo', next.col); this.write('dTo', next.den); this.write('gTo', next.grp)
+    this.setMask(null)
     this.glowTarget = 0
     this.mix = this.reduced ? 1 : 0
     this.morphStart = performance.now()
@@ -207,6 +216,13 @@ export class GlyphField {
     if (this.reduced) this.glow = this.glowTarget
   }
 
+  setMask(mask: Float32Array | null) {
+    this.write('aMask', mask ?? new Float32Array(POINTS))
+    if (mask) this.material.uniforms.uHighlight.value = -99
+    this.glowTarget = mask ? 1 : 0
+    if (this.reduced) this.glow = this.glowTarget
+  }
+
   private loop = () => {
     this.frame = requestAnimationFrame(this.loop)
     if (document.hidden) return
@@ -219,8 +235,10 @@ export class GlyphField {
     const step = 16 / GLOW_MS
     this.glow = this.glowTarget > this.glow ? Math.min(this.glowTarget, this.glow + step) : Math.max(this.glowTarget, this.glow - step)
     u.uGlow.value = this.glow
-    this.points.rotation.y = Math.sin(t * 0.07) * 0.12
-    this.points.rotation.x = Math.sin(t * 0.05) * 0.04
+    // Forms aligned with drawn content ask for no sway; it eases out instead of snapping.
+    this.sway += ((this.target.sway ?? 1) - this.sway) * 0.04
+    this.points.rotation.y = Math.sin(t * 0.07) * 0.12 * this.sway
+    this.points.rotation.x = Math.sin(t * 0.05) * 0.04 * this.sway
     this.halo.rotation.copy(this.points.rotation)
     this.renderer.render(this.scene, this.camera)
   }
