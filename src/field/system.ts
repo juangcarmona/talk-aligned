@@ -17,6 +17,8 @@ export type System = {
   homes: Home[]
   /** Iteration 0–5 without a product definition: where each block is, or null while it is still in the cloud. */
   before: (Point | null)[][]
+  /** Before: the colour each block shows at each iteration; late cycles mix pieces of one feature into another. */
+  tint: string[][]
   cloud: (Point & { z: number })[]
   ghost: [number, number][]
   column: number
@@ -83,21 +85,50 @@ export function system(rect: Rect): System {
   // Each cycle adds a little and redoes almost everything.
   const written = [0.22, 0.34, 0.46, 0.58, 0.7]
   const rework = [0, 0.9, 0.9, 0.9, 0.9]
-  const amplitude = [220, 180, 140, 105, 70].map(a => a * s)
-  const jitter = [40, 32, 24, 16, 10].map(a => a * s)
+  const amplitude = [220, 180, 150, 125, 110].map(a => a * s)
+  const jitter = [40, 32, 26, 20, 16].map(a => a * s)
+  // The last two cycles look like an architecture, but are not: whole pieces come loose and
+  // land somewhere else, the cross-cutting bands show up in several places at once, and
+  // features take each other's colours.
+  const chaos = [0, 0, 0, 0.7, 1]
+  const palette = [color.br, color.term, color.uc, color.bc, color.act]
+  const piece = { w: 70 * s, h: 64 * s }
   const before: (Point | null)[][] = [homes.map(() => null)]
+  const tint: string[][] = [homes.map(h => h.c)]
   for (let k = 0; k < written.length; k++) {
     const waves = Array.from({ length: 6 }, () => [(0.003 + random() * 0.009) / s, (0.003 + random() * 0.009) / s, random() * Math.PI * 2])
     const warp = (x: number, y: number, from: number) => waves.slice(from, from + 3).reduce((sum, [a, b, c]) => sum + Math.sin(a * x + b * y + c), 0) / 3
+    type Piece = { dx: number; dy: number; c: string | null }
+    const pieces = new Map<string, Piece>()
+    const pieceOf = (home: Home): Piece => {
+      const ix = Math.floor((home.x - x0) / piece.w), iy = Math.floor((home.y - y0) / piece.h)
+      const key = `${ix},${iy},${home.band}`
+      let found = pieces.get(key)
+      if (!found) {
+        const cx = x0 + (ix + 0.5) * piece.w, cy = y0 + (iy + 0.5) * piece.h
+        const jump = home.band >= 0 ? random() < 0.55 * chaos[k] : random() < 0.28 * chaos[k]
+        const to = home.band >= 0 ? { x: x0 + random() * w, y: y0 + (0.2 + random() * 0.75) * h } : { x: cx + (random() - 0.5) * 360 * s, y: cy + (random() - 0.5) * 280 * s }
+        found = { dx: jump ? to.x - cx : 0, dy: jump ? to.y - cy : 0, c: random() < 0.4 * chaos[k] ? palette[Math.floor(random() * palette.length)] : null }
+        pieces.set(key, found)
+      }
+      return found
+    }
+    const colours: string[] = []
     before.push(before[k].map((point, i) => {
       const home = homes[i]
+      colours[i] = tint[k][i]
       if (priority[i] >= written[k] || (k === 3 && home.f >= 2 && home.f <= 4)) return null
       if (point && random() >= rework[k]) return point
+      const p = chaos[k] ? pieceOf(home) : null
+      colours[i] = p?.c ?? home.c
+      // A loose piece moves in one block, so it still reads as a piece of something.
+      if (p && (p.dx || p.dy)) return { x: reflect(home.x + p.dx + (random() - 0.5) * 6 * s, x0, x0 + w), y: reflect(home.y + p.dy + (random() - 0.5) * 6 * s, y0, y0 + h) }
       return {
         x: reflect(home.x + amplitude[k] * warp(home.x, home.y, 0) + (random() - 0.5) * 2 * jitter[k], x0, x0 + w),
         y: reflect(home.y + amplitude[k] * 0.7 * warp(home.x, home.y, 3) + (random() - 0.5) * 2 * jitter[k], y0, y0 + h),
       }
     }))
+    tint.push(colours)
   }
 
   const fog = rng(5)
@@ -108,7 +139,7 @@ export function system(rect: Rect): System {
   const blurRandom = rng(3)
   const ghost = homes.map((): [number, number] => { const th = blurRandom() * Math.PI * 2, r = 0.3 + blurRandom() * 0.7; return [r * Math.cos(th), r * Math.sin(th)] })
 
-  const result = { rect, homes, before, cloud, ghost, column, gap }
+  const result = { rect, homes, before, tint, cloud, ghost, column, gap }
   cache.set(key, result)
   return result
 }

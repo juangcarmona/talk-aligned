@@ -11,3 +11,4 @@ Still open:
 3. **Speaker notes.** `speaker-notes.md` is a draft in English with your facts. Rewrite it in your voice. The presenter window picks up the changes on the next build.
 
 4. **Live demo.** Everything runs offline from recorded output. Do you want to run the release contract live from a terminal as well? (It needs `npm install` beforehand, offline afterwards.)
+5. **Shillinq lines on the noise sheet.** Confirmed by Juan on 2026-11-05: lines 32–33 ("no per-app controller"), 181–182 (`VatReturnService` forbidden) and 414–416 (`VATReturnService` and `VATReturn` required) of `bookkeeping-vat-btw-filing/spec.md`, main at `1ccd637`.

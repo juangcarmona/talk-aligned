@@ -9,4 +9,4 @@ jobs:
         with: { node-version: 22 }
       - run: npx --yes @prodshape/cli@0.22.1 validate
       - run: npx --yes @prodshape/cli@0.22.1 citations verify
-      - run: node --test tests/refund-window.test.mjs
+      # The refunds API (src/) and its tests (tests/) are an illustration for the talk: there is no app to build or run here.

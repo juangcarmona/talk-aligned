@@ -15,13 +15,13 @@ export const POINTS = 5200
 export type Form = { pos: Float32Array; col: Float32Array; den: Float32Array; grp: Float32Array; sway?: number }
 
 export type FormName =
-  | 'noise' | 'copies' | 'two'
+  | 'noise' | 'copies' | 'two' | 'dust'
   | 'lifecycle' | 'lifecycle-ai' | 'lifecycle-left' | 'fragments'
-  | 'specs-0' | 'specs-1' | 'specs-2' | 'specs-3' | 'specs-many' | 'specs-dim' | 'pyramid' | 'hourglass' | 'hourglass-stale'
+  | 'specs-0' | 'specs-1' | 'specs-2' | 'specs-3' | 'specs-many' | 'specs-dim' | 'specs-faint' | 'pyramid' | 'hourglass' | 'hourglass-stale'
   | 'before-0' | 'before-1' | 'before-2' | 'before-3' | 'before-4' | 'before-5' | 'before-dim'
   | 'after-0' | 'after-1' | 'after-2' | 'after-3' | 'after-4' | 'after-5' | 'after-6' | 'after-7' | 'after-8' | 'after-dim'
   | 'graph-nodes' | 'code' | 'heading-lost' | 'heading-set'
-  | 'question' | 'cite-0' | 'cite' | 'drift-current' | 'drift-stale' | 'pipeline' | 'dogfood' | 'bands' | 'ring'
+  | 'question' | 'cite-0' | 'cite' | 'drift-current' | 'drift-stale' | 'pipeline-1' | 'pipeline-2' | 'pipeline-3' | 'dogfood' | 'bands' | 'ring'
 
 
 function hex(value: string): [number, number, number] {
@@ -128,7 +128,7 @@ function drawBefore(b: Builder, sys: System, k: number, d = 0.85) {
     const point = sys.before[k][i]
     // Blocks this cycle wrote or rewrote are bright; the ones it left alone are dimmer.
     const touched = k > 0 && point !== sys.before[k - 1][i]
-    if (point) b.sheet(point.x, point.y, home.c, touched ? d : d * 0.55)
+    if (point) b.sheet(point.x, point.y, sys.tint[k][i], touched ? d : d * 0.55)
     else b.sheet(sys.cloud[i].x, sys.cloud[i].y, grey, 0.2 * (d / 0.85), sys.cloud[i].z)
   })
 }
@@ -143,26 +143,120 @@ function drawAfter(b: Builder, sys: System, k: number, d = 0.88) {
   })
 }
 
+// Stage icons drawn in glyphs, after the SDLC timeline in Juan's article (NUT panel 1).
+// Each icon has its own seed, so the three lifecycle forms draw it identically and it stays still.
+type Pen = { line(x1: number, y1: number, x2: number, y2: number, n: number, c: string, d?: number): void; arc(cx: number, cy: number, r: number, a0: number, a1: number, n: number, c: string, d?: number): void; fill(inside: (x: number, y: number) => boolean, x0: number, y0: number, x1: number, y1: number, n: number, c: string, d?: number): void }
+const ink = { yellow: '#ffd23f', amber: '#ff9f1c', orange: '#ff6b2c', red: '#f0443a', white: '#f4f6fa', grey: '#9aa6b8', steel: '#c3ccd8', brown: '#c98a4b', blue: '#5aa9ff', sky: '#9fd3ff', green: '#4fcb8c', pink: '#f27ec2', dark: '#4a5468' }
+const inPoly = (pts: [number, number][]) => (x: number, y: number) => {
+  let inside = false
+  for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) {
+    const [xi, yi] = pts[i], [xj, yj] = pts[j]
+    if ((yi > y) !== (yj > y) && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) inside = !inside
+  }
+  return inside
+}
+const stageIcons: ((p: Pen) => void)[] = [
+  // Ideation: a lit bulb.
+  p => {
+    p.fill((x, y) => x * x + (y + 14) ** 2 < 30 * 30, -30, -44, 30, 16, 70, ink.yellow, 0.35)
+    p.arc(0, -14, 34, Math.PI * 0.72, Math.PI * 2.28, 90, ink.yellow, 0.9)
+    p.line(-14, 14, -12, 28, 8, ink.yellow, 0.9); p.line(14, 14, 12, 28, 8, ink.yellow, 0.9)
+    p.line(-8, 8, -4, -18, 10, ink.orange, 0.95); p.line(-4, -18, 0, -6, 6, ink.orange, 0.95); p.line(0, -6, 4, -18, 6, ink.orange, 0.95); p.line(4, -18, 8, 8, 10, ink.orange, 0.95)
+    for (const y of [32, 40, 48]) p.line(-12 + (y - 32) / 4, y, 12 - (y - 32) / 4, y, 9, ink.grey, 0.8)
+    for (const a of [-2.6, -2.1, -1.57, -1.05, -0.55]) p.line(48 * Math.cos(a), -14 + 48 * Math.sin(a), 60 * Math.cos(a), -14 + 60 * Math.sin(a), 4, ink.amber, 0.7)
+  },
+  // Product: a bullseye.
+  p => {
+    ;[[42, ink.red], [32, ink.white], [22, ink.red], [12, ink.white], [5, ink.red]].forEach(([r, c], k) =>
+      p.fill((x, y) => { const q = Math.hypot(x, y + 4); return q < (r as number) && q >= (k < 4 ? [32, 22, 12, 5][k] : 0) }, -42, -46, 42, 38, Math.round(80 * (r as number) / 42) + 12, c as string, 0.85))
+  },
+  // Functional backlog: a clipboard with items.
+  p => {
+    p.fill((x, y) => Math.abs(x) < 30 && Math.abs(y) < 40, -30, -40, 30, 40, 60, ink.brown, 0.4)
+    p.line(-32, -42, 32, -42, 16, ink.brown, 0.9); p.line(32, -42, 32, 42, 20, ink.brown, 0.9); p.line(32, 42, -32, 42, 16, ink.brown, 0.9); p.line(-32, 42, -32, -42, 20, ink.brown, 0.9)
+    p.fill((x, y) => Math.abs(x) < 14 && y > -50 && y < -38, -14, -50, 14, -38, 22, ink.grey, 0.95)
+    for (const y of [-20, -2, 16]) { p.fill((x, q) => Math.hypot(x + 18, q - y) < 4, -22, y - 4, -14, y + 4, 5, ink.green, 0.95); p.line(-8, y, 22, y, 9, ink.white, 0.85) }
+  },
+  // Architecture: a column building.
+  p => {
+    p.fill(inPoly([[-46, -22], [0, -48], [46, -22]]), -46, -48, 46, -22, 70, ink.steel, 0.75)
+    p.line(-46, -22, 0, -48, 14, ink.white, 0.9); p.line(0, -48, 46, -22, 14, ink.white, 0.9)
+    for (const x of [-32, -11, 11, 32]) p.fill((u, v) => Math.abs(u - x) < 6 && v > -18 && v < 32, x - 6, -18, x + 6, 32, 34, ink.white, 0.8)
+    p.fill((x, y) => Math.abs(x) < 48 && y > 32 && y < 44, -48, 32, 48, 44, 44, ink.steel, 0.85)
+  },
+  // Design: a pencil.
+  p => {
+    const a = -Math.PI / 4, c = Math.cos(a), s = Math.sin(a)
+    const along = (t: number, w: number): [number, number] => [t * c - w * s, t * s + w * c]
+    const band = (t0: number, t1: number, col: string, n: number, d = 0.85) => p.fill((x, y) => { const t = x * c + y * s, w = -x * s + y * c; return t > t0 && t < t1 && Math.abs(w) < 9 }, -60, -60, 60, 60, n, col, d)
+    band(-34, 26, ink.yellow, 90); band(-46, -34, ink.steel, 18); band(-58, -46, ink.pink, 18, 0.9)
+    p.fill((x, y) => { const t = x * c + y * s, w = -x * s + y * c; return t > 26 && t < 46 && Math.abs(w) < 9 * (46 - t) / 20 }, -60, -60, 60, 60, 26, ink.brown, 0.85)
+    const [tx, ty] = along(48, 0); p.fill((x, y) => Math.hypot(x - tx, y - ty) < 4, tx - 4, ty - 4, tx + 4, ty + 4, 6, ink.dark, 0.95)
+    const [x1, y1] = along(-34, 0), [x2, y2] = along(26, 0); p.line(x1, y1, x2, y2, 14, ink.amber, 0.9)
+  },
+  // Development: a laptop with code on screen.
+  p => {
+    p.fill((x, y) => Math.abs(x) < 40 && y > -42 && y < 14, -40, -42, 40, 14, 40, ink.blue, 0.15)
+    p.line(-42, -44, 42, -44, 18, ink.steel, 0.9); p.line(42, -44, 42, 16, 14, ink.steel, 0.9); p.line(-42, 16, -42, -44, 14, ink.steel, 0.9); p.line(-42, 16, 42, 16, 18, ink.steel, 0.9)
+    p.line(-28, -30, -18, -18, 5, ink.green, 0.95); p.line(-18, -18, -28, -6, 5, ink.green, 0.95); p.line(-8, -4, 14, -4, 6, ink.white, 0.95); p.line(-8, -30, 28, -30, 9, ink.sky, 0.75); p.line(-8, -17, 20, -17, 7, ink.sky, 0.75)
+    p.fill(inPoly([[-46, 20], [46, 20], [58, 34], [-58, 34]]), -58, 20, 58, 34, 50, ink.steel, 0.55)
+  },
+  // DevOps: a gear.
+  p => {
+    p.fill((x, y) => { const r = Math.hypot(x, y), th = Math.atan2(y, x); return r > 13 && (r < 32 || (r < 44 && Math.cos(8 * th) > 0.35)) }, -44, -44, 44, 44, 190, ink.grey, 0.8)
+    p.arc(0, 0, 13, 0, Math.PI * 2, 24, ink.white, 0.85)
+  },
+  // Operations: a cloud.
+  p => {
+    const circles: [number, number, number][] = [[-26, 8, 20], [0, -8, 28], [26, 6, 20], [0, 14, 18]]
+    p.fill((x, y) => y < 28 && circles.some(([cx, cy, r]) => Math.hypot(x - cx, y - cy) < r - 4), -48, -38, 48, 28, 100, ink.sky, 0.3)
+    p.arc(-26, 8, 20, Math.PI * 0.5, Math.PI * 1.55, 22, ink.white, 0.9); p.arc(0, -8, 28, Math.PI * 1.1, Math.PI * 1.95, 30, ink.white, 0.9); p.arc(26, 6, 20, Math.PI * 1.45, Math.PI * 2.5, 22, ink.white, 0.9)
+    p.line(-26, 28, 26, 28, 18, ink.white, 0.9)
+  },
+  // SRE: a shield with a check.
+  p => {
+    const shield: [number, number][] = [[0, -48], [40, -34], [38, 4], [24, 30], [0, 46], [-24, 30], [-38, 4], [-40, -34]]
+    p.fill(inPoly(shield), -40, -48, 40, 46, 140, ink.blue, 0.55)
+    shield.forEach((pt, k) => { const [x2, y2] = shield[(k + 1) % shield.length]; p.line(pt[0], pt[1], x2, y2, 8, ink.sky, 0.9) })
+    p.line(-18, 0, -4, 16, 8, ink.green, 1); p.line(-4, 16, 22, -16, 14, ink.green, 1)
+  },
+  // Maintenance: a wrench.
+  p => {
+    const a = Math.PI / 4, c = Math.cos(a), s = Math.sin(a)
+    p.fill((x, y) => { const t = x * c + y * s, w = -x * s + y * c; return t > -48 && t < 24 && Math.abs(w) < 8 }, -60, -60, 60, 60, 90, ink.steel, 0.85)
+    const hx = -38 * c, hy = -38 * s
+    p.fill((x, y) => { const t = x * c + y * s, w = -x * s + y * c; const r = Math.hypot(t - 36, w); return r < 21 && !(t > 36 && Math.abs(w) < 8) }, -10, -10, 60, 60, 90, ink.steel, 0.85)
+    p.fill((x, y) => Math.hypot(x - hx, y - hy) < 3, hx - 3, hy - 3, hx + 3, hy + 3, 4, ink.dark, 0.95)
+  },
+]
+
+const ICON_GROUP = 100, LINE_GROUP = 200
+
+function drawIcon(b: Builder, k: number, cx: number, cy: number, budget: number, scale = 1) {
+  const random = rng(4242 + k * 101)
+  const start = b.i
+  b.group = ICON_GROUP + k
+  const put = (x: number, y: number, c: string, d: number) => { if (b.i - start < budget) b.sheet(cx + x * scale, cy + y * scale, c, d + (random() - 0.5) * 0.12) }
+  const pen: Pen = {
+    line: (x1, y1, x2, y2, n, c, d = 0.85) => { for (let j = 0; j < n; j++) { const t = (j + 0.5) / n; put(x1 + (x2 - x1) * t, y1 + (y2 - y1) * t, c, d) } },
+    arc: (x0, y0, r, a0, a1, n, c, d = 0.85) => { for (let j = 0; j < n; j++) { const a = a0 + ((a1 - a0) * (j + 0.5)) / n; put(x0 + r * Math.cos(a), y0 + r * Math.sin(a), c, d) } },
+    fill: (inside, x0, y0, x1, y1, n, c, d = 0.85) => { for (let j = 0, tries = 0; j < n && tries < n * 60; tries++) { const x = x0 + random() * (x1 - x0), y = y0 + random() * (y1 - y0); if (inside(x, y)) { put(x, y, c, d); j++ } } },
+  }
+  stageIcons[k](pen)
+  b.skip(start + budget - b.i)
+}
+
 /** The SDLC timeline (NUT panel 1): ten stages on one line, in sheet px. */
 export const stages = Array.from({ length: 10 }, (_, k) => ({ x: 170 + k * 176, y: 560 }))
 
-function lifecycle(b: Builder, band: 'none' | 'ai' | 'left') {
+function lifecycle(b: Builder) {
   b.sway = 0
-  stages.forEach(({ x, y }, k) => { if (k) for (let j = 0; j < 40; j++) b.sheet(stages[k - 1].x + 28 + ((x - stages[k - 1].x - 56) * (j + 0.5)) / 40, y, color.accent, 0.3) })
-  stages.forEach(({ x, y }, k) => {
-    for (let j = 0; j < 70; j++) {
-      const r = 20 * Math.sqrt((j + 0.5) / 70), th = j * 2.39996
-      b.sheet(x + r * Math.cos(th), y + r * Math.sin(th), k === 5 ? color.white : color.act, k === 5 ? 0.95 : 0.6)
-    }
-  })
-  // One strip of glyphs: the AI investment over Architecture to Operations, which then moves left to Ideation and Product.
-  const [from, to] = band === 'left' ? [0, 1] : [3, 7]
-  const x0 = stages[from].x - 60, x1 = stages[to].x + 60
-  for (let j = 0; j < 900; j++) {
-    const u = (j % 150) / 150, v = Math.floor(j / 150) / 6
-    if (band === 'none') { b.skip(1); continue }
-    b.sheet(x0 + (x1 - x0) * (u + b.random() * 0.006), 640 + v * 44 + b.random() * 4, band === 'left' ? color.uc : color.accent, 0.8)
-  }
+  // One continuous line under the icons; the stage names sit on it.
+  const [first, last] = [stages[0], stages[stages.length - 1]]
+  b.group = LINE_GROUP
+  for (let j = 0; j < 360; j++) b.sheet(first.x + ((last.x - first.x) * (j + 0.5)) / 360, first.y, color.accent, 0.3)
+  b.skip(700)
+  stages.forEach(({ x, y }, k) => drawIcon(b, k, x, y - 64, 300))
 }
 
 /** The sources of product knowledge (NUT panel 3), in sheet px. */
@@ -171,17 +265,21 @@ export const sources = [
   { x: 1100, y: 840, c: color.uc }, { x: 840, y: 910, c: color.fr }, { x: 480, y: 340, c: color.br },
 ]
 export const knowledge = { x: 820, y: 590 }
+/** Point groups on the fragments sheet: source k is group k; the grey knowledge cloud is this one. */
+export const KNOWLEDGE_GROUP = 7
 
 function fragments(b: Builder) {
   b.sway = 0
   const pairs = [[0, 1], [0, 6], [1, 5], [2, 3], [3, 4], [4, 5], [6, 2], [1, 3], [0, 4], [5, 2]]
   pairs.forEach(([a, c]) => b.line((sources[a].x - 960) / 60, (540 - sources[a].y) / 60, (sources[c].x - 960) / 60, (540 - sources[c].y) / 60, 60, color.white, 0.22, true))
+  b.group = KNOWLEDGE_GROUP
   for (let j = 0; j < 500; j++) {
     const m = Math.sqrt(-2 * Math.log(Math.max(1e-6, b.random()))), th = b.random() * Math.PI * 2, spread = 1.5
     b.sheet(knowledge.x + 120 * spread * m * Math.cos(th), knowledge.y + 70 * spread * m * Math.sin(th), grey, 0.22, (b.random() - 0.5) * 2)
   }
   sources.forEach(({ x, y, c }, k) => {
     const other = sources[(k + 3) % sources.length]
+    b.group = k
     for (let j = 0; j < 220; j++) {
       const m = Math.sqrt(-2 * Math.log(Math.max(1e-6, b.random()))), th = b.random() * Math.PI * 2
       // Leaking: a third of each cluster drifts towards another source and never arrives.
@@ -369,6 +467,58 @@ function testShape(b: Builder, hourglass: boolean, small = false, stale = false)
   if (stale) lowLifecycle(b)
 }
 
+/**
+ * Neon for the lifecycle. `weights` lights each stage (its icon, and the line between stages by interpolation);
+ * `travel` mixes in a spot of light at sheet x = `cx` on the line, so the light can move along it.
+ */
+const neon = new Float32Array(POINTS)
+export function lifecycleNeon(weights: number[], cx: number, travel: number) {
+  const f = form('lifecycle')
+  const spot = (x: number, width: number) => { const t = Math.max(0, 1 - Math.abs(x - cx) / width); return t * t * (3 - 2 * t) }
+  const along = (x: number) => {
+    const u = Math.max(0, Math.min(stages.length - 1, (x - stages[0].x) / (stages[1].x - stages[0].x)))
+    const k = Math.min(stages.length - 2, Math.floor(u))
+    return weights[k] + (weights[k + 1] - weights[k]) * (u - k)
+  }
+  for (let i = 0; i < POINTS; i++) {
+    const g = f.grp[i]
+    if (g === LINE_GROUP) { const x = f.pos[i * 3] * 60 + 960; neon[i] = (1 - travel) * along(x) + travel * spot(x, 130) }
+    else if (g >= ICON_GROUP && g < ICON_GROUP + stages.length) { const k = g - ICON_GROUP; neon[i] = (1 - travel) * weights[k] + travel * spot(stages[k].x, 160) }
+    else neon[i] = 0
+  }
+  return neon
+}
+
+/** The two sources of truth as glyph discs, in sheet px, and their point groups. */
+export const TWO_GROUP = { product: 0, architecture: 1, link: 2, agent: 3 }
+
+/** The agent drawn in glyphs: a white ball, lit from the top right. Its eyes are drawn on the sheet, so they can look around. */
+export const agentBall = { x: 1500, y: 860, r: 58 }
+function agent(b: Builder) {
+  const random = rng(7351), { x: cx, y: cy, r } = agentBall
+  for (let n = 0; n < 460; n++) {
+    const rr = r * Math.sqrt(random()), a = random() * Math.PI * 2, x = rr * Math.cos(a), y = rr * Math.sin(a)
+    const light = 0.8 + 0.2 * Math.max(0, (x - y) / (r * 1.6) + 0.4)
+    b.sheet(cx + x, cy + y, color.white, Math.min(1, light))
+  }
+}
+export const twoDiscs = { product: { x: 960 + 5.5 * 60, y: 540, r: 2.6 * 60 }, architecture: { x: 960 + 12.5 * 60, y: 540, r: 2.6 * 60 } }
+
+function beats(b: Builder, shown: number) {
+  b.sway = 0
+  const xs = [-9.87, 0, 9.87], tints = [color.jrn, color.uc, color.white]
+  xs.forEach((x, k) => { if (k) { if (k < shown) b.line(xs[k - 1] + 1.2, -6.6, x - 1.2, -6.6, 220, color.accent, 0.3); else b.skip(220) } })
+  xs.forEach((x, k) => { if (k < shown) b.disc(x, -6.6, k === 2 ? 1.0 : 0.8, 320, tints[k]); else b.skip(320) })
+}
+
+/** Neon by group: point i is lit by `level[grp[i]]` (groups outside the array stay dark). */
+const groupNeon = new Float32Array(POINTS)
+export function groupMask(name: FormName, level: number[]) {
+  const g = form(name).grp
+  for (let i = 0; i < POINTS; i++) groupNeon[i] = level[g[i]] ?? 0
+  return groupNeon
+}
+
 /** The lifecycle line again, low on the tests sheet, with an arc from Product straight to validation (DevOps, where CI runs the e2e). */
 export const lowStages = stages.map(({ x }) => ({ x, y: 930 }))
 export const validationArc = { from: 1, to: 6, peak: 820 }
@@ -435,9 +585,11 @@ const builders: Record<FormName, (b: Builder) => void> = {
   'after-7': b => drawAfter(b, system(BIG), 7),
   'after-8': b => drawAfter(b, system(BIG), 8),
   'after-dim': b => drawAfter(b, system(BIG), AFTER_STEPS, 0.3),
-  lifecycle: b => lifecycle(b, 'none'),
-  'lifecycle-ai': b => lifecycle(b, 'ai'),
-  'lifecycle-left': b => lifecycle(b, 'left'),
+  // Only the background dust: a quiet sheet for one big line.
+  dust: () => {},
+  lifecycle: b => lifecycle(b),
+  'lifecycle-ai': b => lifecycle(b),
+  'lifecycle-left': b => lifecycle(b),
   fragments: b => fragments(b),
   'specs-0': b => specArrows(b, false, 1, 0),
   'specs-1': b => specArrows(b, false, 1, 1),
@@ -445,6 +597,7 @@ const builders: Record<FormName, (b: Builder) => void> = {
   'specs-3': b => specArrows(b, false, 1, 3),
   'specs-many': b => specArrows(b, true),
   'specs-dim': b => specArrows(b, true, 0.4),
+  'specs-faint': b => specArrows(b, true, 0.15),
   pyramid: b => testShape(b, false),
   hourglass: b => testShape(b, true),
   'hourglass-stale': b => testShape(b, true, true, true),
@@ -454,20 +607,22 @@ const builders: Record<FormName, (b: Builder) => void> = {
   'heading-lost': b => heading(b, false),
   'heading-set': b => heading(b, true),
   two: b => {
-    b.disc(5.5, 0, 2.6, 1300, color.accent, 0.8)
-    b.disc(12.5, 0, 2.6, 1300, color.bc, 0.8)
-    b.line(8.3, 0, 9.7, 0, 160, color.white, 0.45, true)
+    // Still, so hovering can find the glyph under the pointer. Groups: product, architecture, the link.
+    b.sway = 0
+    b.group = TWO_GROUP.product; b.disc(5.5, 0, 2.6, 1300, color.accent, 0.8)
+    b.group = TWO_GROUP.architecture; b.disc(12.5, 0, 2.6, 1300, color.bc, 0.8)
+    b.group = TWO_GROUP.link; b.line(8.3, 0, 9.7, 0, 160, color.white, 0.45, true)
+    b.group = TWO_GROUP.agent; agent(b)
   },
   question: b => question(b),
   'cite-0': b => citations(b, 'hidden'),
   cite: b => citations(b, 'current'),
   'drift-current': b => citations(b, 'current'),
   'drift-stale': b => citations(b, 'stale'),
-  pipeline: b => {
-    const xs = [-13, -8, -3, 2, 7, 12.5]
-    xs.forEach((x, k) => { if (k) b.line(xs[k - 1], -6.4, x, -6.4, 150, color.accent, 0.3) })
-    xs.forEach((x, k) => b.disc(x, -6.4, k === 2 || k === 5 ? 1.05 : 0.7, k === 2 || k === 5 ? 320 : 180, k === 2 || k === 5 ? color.white : color.br))
-  },
+  // Three beats on one line under the cards: AI, code, and the person in white. A beat not told yet waits in the dust.
+  'pipeline-1': b => beats(b, 1),
+  'pipeline-2': b => beats(b, 2),
+  'pipeline-3': b => beats(b, 3),
   dogfood: b => {
     const graphs: [number, number, string][] = [[-10.5, 95, color.accent], [0, 35, color.bc], [10.5, 127, color.sb]]
     for (const [cx, count, c] of graphs) {

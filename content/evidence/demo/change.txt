@@ -1,4 +1,4 @@
-# Demo shop (talk-aligned/demo), @prodshape/cli@0.22.1, Node v22.22.1, run 2026-11-04.
+# Demo shop (talk-aligned/demo), @prodshape/cli@0.22.1, Node v22.22.1, run 2026-11-04. Re-run 2026-11-04 after moving the code to src/Refunds/RefundPolicy.cs and the test to tests/refund-window.test.ts: same digests and statuses.
 # Output copied verbatim; only the comments starting with "#" were added.
 
 $ prodshape impact BR-REFUND-001
@@ -17,7 +17,7 @@ Structural reachability only - no semantic claim.
 $ prodshape citations verify
 current	BR-REFUND-001	openspec/specs/refunds/spec.md:7
 current	BR-REFUND-001	.agents/skills/refunds/SKILL.md:10
-current	BR-REFUND-001	src/refunds.citations.yml:1
+current	BR-REFUND-001	src/Refunds/RefundPolicy.citations.yml:1
 current	SB-REFUND-001	tests/e2e/refund-window.citations.yml:1
 current	SB-REFUND-002	tests/e2e/refund-window.citations.yml:2
 current	BR-REFUND-001	tests/refund-window.citations.yml:1
@@ -26,7 +26,7 @@ Tip: use --provider openspec for OpenSpec-aware verification that distinguishes 
 # exit 0
 
 $ prodshape change create CHG-REFUND-002 --title "Shorter refund window"
-Created docs/product/changes/active/chg-refund-002/change.md (status draft, base-revision 925385f80d453df11bbd92f301abe889da9fe63d)
+Created docs/product/changes/active/chg-refund-002/change.md (status draft, base-revision c6c756ae48b334eda312f3426b64bd0ef70cfb83)
 Next steps:
   - Describe the problem and the intended product outcome in change.md.
   - Declare operations and author complete proposed artifacts under docs/product/changes/active/chg-refund-002/proposed/.
@@ -51,7 +51,7 @@ Product diff: 0 added, 3 modified, 0 removed
   BR-REFUND-001	modified	sha256:4b162af9bce0926f026ed9b430f3c3d20b830ba36b49fd34e6cac1c316d36aaf
 Affected citations: 5
   openspec/specs/refunds/spec.md:7	BR-REFUND-001	stale
-  src/refunds.citations.yml entry 1	BR-REFUND-001	stale
+  src/Refunds/RefundPolicy.citations.yml entry 1	BR-REFUND-001	stale
   tests/e2e/refund-window.citations.yml entry 1	SB-REFUND-001	stale
   tests/e2e/refund-window.citations.yml entry 2	SB-REFUND-002	stale
   tests/refund-window.citations.yml entry 1	BR-REFUND-001	stale
@@ -61,13 +61,13 @@ Applied and archived. Nothing was committed: open a pull request so a human can 
 $ prodshape citations verify
 stale	BR-REFUND-001	openspec/specs/refunds/spec.md:7
 stale	BR-REFUND-001	.agents/skills/refunds/SKILL.md:10
-stale	BR-REFUND-001	src/refunds.citations.yml:1
+stale	BR-REFUND-001	src/Refunds/RefundPolicy.citations.yml:1
 stale	SB-REFUND-001	tests/e2e/refund-window.citations.yml:1
 stale	SB-REFUND-002	tests/e2e/refund-window.citations.yml:2
 stale	BR-REFUND-001	tests/refund-window.citations.yml:1
 warning PRODUCT061 .agents/skills/refunds/SKILL.md:10: Citation of 'BR-REFUND-001' is stale: canonical content changed since the citation was recorded (BR-REFUND-001)
 warning PRODUCT061 openspec/specs/refunds/spec.md:7: Citation of 'BR-REFUND-001' is stale: canonical content changed since the citation was recorded (BR-REFUND-001)
-warning PRODUCT061 src/refunds.citations.yml entry 1: Citation of 'BR-REFUND-001' is stale: canonical content changed since the citation was recorded (BR-REFUND-001)
+warning PRODUCT061 src/Refunds/RefundPolicy.citations.yml entry 1: Citation of 'BR-REFUND-001' is stale: canonical content changed since the citation was recorded (BR-REFUND-001)
 warning PRODUCT061 tests/e2e/refund-window.citations.yml entry 1: Citation of 'SB-REFUND-001' is stale: canonical content changed since the citation was recorded (SB-REFUND-001)
 warning PRODUCT061 tests/e2e/refund-window.citations.yml entry 2: Citation of 'SB-REFUND-002' is stale: canonical content changed since the citation was recorded (SB-REFUND-002)
 warning PRODUCT061 tests/refund-window.citations.yml entry 1: Citation of 'BR-REFUND-001' is stale: canonical content changed since the citation was recorded (BR-REFUND-001)

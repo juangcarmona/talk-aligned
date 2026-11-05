@@ -16,23 +16,31 @@ And on the left there's a jumble. Product decisions in Jira. Conversations in Sl
 
 ## direction
 
-Before the tools, a word about people and AI. A team without direction is a boat without a lighthouse: it builds at random. And vibe coding is exactly that: building at random, very fast. [click] With direction it's different. Every decision is still about today's problem, but it keeps the destination in sight, directly or indirectly. That's what a team that knows the product has: direction, a guide, a roadmap.
+Before the tools, a word about people and AI. No development team can build without direction. A team without direction is a boat without a lighthouse: it builds at random. And vibe coding speeds up the disaster: building at random, very fast. [click] With direction it's different. A clear direction lets us solve today's problems without losing sight of the destination. Every decision is still about today's problem, but it keeps the destination in sight, directly or indirectly. That's what a team that knows the product has: direction, a guide, a roadmap.
+
+## sdd-rocks
+
+And on the implementation side, today we have a direction: SDD. Hands up: who knows Spec-Driven Development? And who uses it? SDD rocks. It was the answer to drift on the implementation side, and it works.
 
 ## noise
 
-Spec-Driven Development was the answer to drift on the implementation side. Let's take one rule: the refund. One concept, one rule. And with many specs, what happens is that the same rule ends up written several ways. [click] Billing: refunds are issued for purchases made in the last 30 days. From the purchase. [click] Checkout: 30 days from delivery. [click] Support: less than a month. One concept, one rule, and three specs pointing three different ways. Each one was a snapshot of what someone wanted at that moment. [click] Now multiply. A hundred and sixty specs, each rebuilt and redefined in its own cycle, each leaving artifacts behind that nobody consolidates. Some point the opposite way. [click] This is a real case: Shillinq, an open-source accounting suite built with SDD. 160 OpenSpec specs, 273 archived changes. Its VAT spec forbids a service and, 380 lines further down in the same file, requires it. Both MUST. I told the maintainers and nobody answered. [click] And validation checks shape, not meaning.
+It works. But what happens at scale? Let's take one rule: the refund. One concept, one rule. And with many specs, what happens is that the same rule ends up written several ways. [click] Billing: refunds are issued for purchases made in the last 30 days. From the purchase. [click] Checkout: 30 days from delivery. [click] Support: less than a month. One concept, one rule, and three specs pointing three different ways. Look at the words: the same verb, refund; but purchase, delivery or order; 30 days or a month. Each one was a snapshot of what someone wanted at that moment. [click] That, at scale, makes noise. Now multiply. A hundred and sixty specs, each rebuilt and redefined in its own cycle, each leaving artifacts behind that nobody consolidates. Some point the opposite way.
+
+## shillinq
+
+This is a real case: Shillinq, an open-source accounting suite built with SDD. 160 OpenSpec specs, 273 archived changes. Its VAT spec forbids a service and, 380 lines further down in the same file, requires it. Both MUST. I found this in a quick search, and you can check it yourselves: the QR opens the file, at these lines. I told the maintainers and nobody answered. [click] And validation checks shape, not meaning.
 
 ## before
 
-Now on the code itself. Every dot is a block of code tokens. On the left, the backlog. No product definition: this is what we have in our heads at the start, a cloud. [click] Ticket 101, add to cart. One SDD cycle. Something gets written, following our reading of the ticket. [click] Next tickets: check out and pay. Another cycle, a different reading, and almost everything moves again. The earlier ticket is reopened. It isn't only chaos: it's uncertainty. Ask the same thing twice and you get different code. [click] Three more tickets. Undo, redo, a small increment. [click] Here we threw three features away. They didn't fit what we now understood. [click] The last tickets. The shape begins to show, after five cycles rebuilding everything. [click] Indeterminism leads to drift, and drift leads to rework. A team that doesn't know the product only sees the ticket in front of it.
+That's in the specs. And in the code? Every dot is a block of code tokens. On the left, the backlog. No product definition: this is what we have in our heads at the start, a cloud. [click] Ticket 101, add to cart. One SDD cycle. Something gets written, following our reading of the ticket. [click] Next tickets: check out and pay. Another cycle, a different reading, and almost everything moves again. The earlier ticket is reopened. It isn't only chaos: it's uncertainty. Ask the same thing twice and you get different code. [click] Three more tickets. Undo, redo, a small increment. [click] Here we threw three features away. They didn't fit what we now understood. [click] The last tickets. It looks like an architecture, but it isn't: loose pieces, cross-cutting concerns in several places at once, features bleeding into each other. Five cycles rebuilding everything. [click] This is a warning sign. Indeterminism leads to drift, drift leads to rework, and rework starts the cycle again. A team that doesn't know the product only sees the ticket in front of it.
 
 ## not-truth
 
-So the conclusion of this first part: the specs should not be our source of truth. Why? Because we've just seen how much noise they make. [click] An AI keeps defining and redefining: entities, business rules, the refund. And language models are inherently non-deterministic, so every redefinition comes out slightly different. Those small variations chain one onto the next, and that's drift. And if the AI already has in its context versions with divergent meanings, what comes out is chaos: divergence. [click] That's the problem with large spec sets. It isn't that a spec can't be a source of truth. It's that the more specs there are, the more chances divergence has to start. [click] The specs must feed from a source of truth.
+So, back to where we started: SDD rocks. [click] But specs should never be our source of truth. [click] Because of this loop. An AI keeps defining and redefining: entities, business rules, the refund. Language models are inherently non-deterministic, so every redefinition comes out slightly different, and those small variations chain one onto the next: that's drift. Drift piles up into divergence: versions of the same rule that mean different things, like Shillinq. And with divergent versions in its context, the AI redefines again. And round we go.
 
 ## two-truths
 
-So we put in a good source of truth. Two, in fact. As software engineers we know the architecture has to be sketched as early as possible, and then it evolves. The same goes for the product: sketch early what we want, an MVP to iterate on. The intent, what we build, in docs/product. The architecture, how we build it, in docs/architecture. Related, citing each other, never mixed up. [click] And SDD feeds from them: specs, agents and code read both. That is their source of truth.
+So SDD stays, but it gets a good source of truth. Two, in fact. As software engineers we know the architecture has to be sketched as early as possible, and then it evolves. The same goes for the product: sketch early what we want, an MVP to iterate on. The intent, what we build, in docs/product. The architecture, how we build it, in docs/architecture. Related, citing each other, never mixed up. And SDD feeds from them: its specs, its agents and its code read both. That is their source of truth. [hover specs, agents, code: each file cites product and architecture; not everything cites both]
 
 ## after
 
@@ -56,7 +64,7 @@ Now let's change it. Same rule, same four citations, all current. Verify: six ci
 
 ## change
 
-And how does a decision change, then? Through a Product Change: a file with the delta and its reason. The tool validates it as an overlay without touching the baseline. A person approves. Apply writes it; it creates no commits. Then a normal PR, CI, and a person merges. [click] Apply is not acceptance; the merge is. [click] Tools check structure. AI skills draft and interpret impact. People approve and merge. No tool approves or merges, ever.
+And who decides that change? Three beats. AI proposes: an agent can draft CHG-REFUND-002, from 30 to 14 days. [click] Code validates: the overlay has 0 errors, and verify tells us that six citations are now stale. [click] And a person accepts, with the merge. Apply writes the change and commits nothing: open a pull request so a human can accept it. No tool approves or merges, ever.
 
 ## trust
 

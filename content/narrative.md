@@ -35,7 +35,7 @@ Juan's own tools prove it on themselves. ProductShape defines itself with its ow
 
 ## Scenes and timings
 
-Agreed with Juan on 2026-11-04. NUT is the image *Product Definition as Code in a nutshell* in BLOG-PDAC.
+Agreed with Juan on 2026-11-04; the SDD sandwich (sheets 5–9) on 2026-11-05. NUT is the image *Product Definition as Code in a nutshell* in BLOG-PDAC.
 
 | # | Scene | Act | Min | Carries |
 | --- | --- | --- | --- | --- |
@@ -43,20 +43,22 @@ Agreed with Juan on 2026-11-04. NUT is the image *Product Definition as Code in 
 | 2 | `lifecycle` | I · Why | 2 | The SDLC timeline; AI investment in the middle; the bottleneck moves left (NUT 1–2) |
 | 3 | `fragments` | I · Why | 2 | "AI doesn't have a product model. It has fragments." (NUT 3) |
 | 4 | `direction` | I · Why | 2 | Without direction, people and AI build at random; with it, every decision aims somewhere |
-| 5 | `noise` | I · Why | 3 | One rule, three refund specs, three directions; ×160; Shillinq |
-| 6 | `before` | I · Why | 3 | Ticket by ticket without a definition: undo, redo, rework |
-| 7 | `not-truth` | I · Why | 1 | Conclusion of Act I: specs should not be the source of truth; they must feed from one |
-| 8 | `two-truths` | II · The turn | 2 | Product and architecture; SDD feeds from them |
-| 9 | `after` | II · The turn | 3 | Architecture first, then slice by slice: each lands in its vertical |
-| 10 | `graph` | III · How | 4 | The demo product as a navigable graph |
-| 11 | `product-code` | III · How | 2 | A node lights the code tokens that implement it |
-| 12 | `cite` | III · How | 3 | BR-REFUND-001 and the four files that cite it |
-| 13 | `drift` | III · How | 3 | CHG-REFUND-002: 30 → 14; the citations go stale; CI fails |
-| 14 | `change` | III · How | 2 | Tools validate, people accept |
-| 15 | `trust` | IV · Verify | 1 | Is what was built what had to be built? Can we trust AI? |
-| 16 | `tests` | IV · Verify | 3 | From pyramid to hourglass; SB-driven e2e know what to adapt |
-| 17 | `closing` | V · Closing | 2 | Uncle Bob doesn't read his agents' code: what do we read? The intent. Tools check shape; meaning is ours |
-| 18 | `url` | — | 1 | `aligned.jgcarmona.com` + QR, then questions |
+| 5 | `sdd-rocks` | I · Why | 1 | "SDD rocks!": who knows it, who uses it. The top of the sandwich |
+| 6 | `noise` | I · Why | 2 | One rule, three refund specs, three directions; ×160 |
+| 7 | `shillinq` | I · Why | 1 | A real case, line by line, with a QR to check it; validation checks shape, not meaning |
+| 8 | `before` | I · Why | 3 | Ticket by ticket without a definition: undo, redo, rework |
+| 9 | `not-truth` | I · Why | 1 | Back to "SDD rocks!", but specs should never be our source of truth: redefinition → drift → divergence |
+| 10 | `two-truths` | II · The turn | 2 | Product and architecture; SDD feeds from them |
+| 11 | `after` | II · The turn | 3 | Architecture first, then slice by slice: each lands in its vertical |
+| 12 | `graph` | III · How | 4 | The demo product as a navigable graph |
+| 13 | `product-code` | III · How | 2 | A node lights the code tokens that implement it |
+| 14 | `cite` | III · How | 3 | BR-REFUND-001 and the four files that cite it |
+| 15 | `drift` | III · How | 3 | CHG-REFUND-002: 30 → 14; the citations go stale; CI fails |
+| 16 | `change` | III · How | 1 | AI proposes, code validates, a person accepts |
+| 17 | `trust` | IV · Verify | 1 | Is what was built what had to be built? Can we trust AI? |
+| 18 | `tests` | IV · Verify | 3 | From pyramid to hourglass; SB-driven e2e know what to adapt |
+| 19 | `closing` | V · Closing | 2 | Uncle Bob doesn't read his agents' code: what do we read? The intent. Tools check shape; meaning is ours |
+| 20 | `url` | — | 1 | `aligned.jgcarmona.com` + QR, then questions |
 | | | | **40** | |
 
 ## Reused from Ingeniería del Software 2.0
@@ -86,7 +88,7 @@ One point cloud runs under every scene, drawn as glyphs (`. : - + x * # @`) in t
 | `artifacts` | The PDaC logo, then a graph of kind-coloured nodes | Artifacts and relationships |
 | `cite` | One white node, edges to consumer nodes | Cite instead of restate |
 | `drift` | Same layout; consumers decay to sparse glyphs | Stale made visible |
-| `change` | A horizontal pipeline of nodes, two marked as human gates | Promotion with human gates |
+| `change` | Three glyph discs on a line: AI, code, and the person in white | AI proposes, code validates, a person accepts |
 | `dogfooding` | Three graphs side by side | Three products, one method |
 | `limits` | Graph split into three bands | Tools, agents, people |
 | `url` | Ring around the QR | Holds still for questions |
