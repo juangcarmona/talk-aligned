@@ -47,7 +47,7 @@ Agreed with Juan on 2026-11-04; the SDD sandwich (sheets 5–9) on 2026-11-05. N
 | 6 | `noise` | I · Why | 2 | One rule, three refund specs, three directions; ×160 |
 | 7 | `shillinq` | I · Why | 1 | A real case, line by line, with a QR to check it; validation checks shape, not meaning |
 | 8 | `before` | I · Why | 3 | Ticket by ticket without a definition: undo, redo, rework |
-| 9 | `not-truth` | I · Why | 1 | Back to "SDD rocks!", but specs should never be our source of truth: redefinition → drift → divergence |
+| 9 | `not-truth` | I · Why | 1 | Back to "SDD rocks!", but specs should never be your source of truth: redefinition → drift → divergence |
 | 10 | `two-truths` | II · The turn | 2 | Product and architecture; SDD feeds from them |
 | 11 | `after` | II · The turn | 3 | Architecture first, then slice by slice: each lands in its vertical |
 | 12 | `graph` | III · How | 4 | The demo product as a navigable graph |

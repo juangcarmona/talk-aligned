@@ -550,7 +550,7 @@ export const scenes: Scene[] = [
         <SpecFile t={t} />
         <div className="check">
           <QrCode value={SHILLINQ_URL} />
-          <p className="check-title">{t('Check it yourself', 'Compruébalo tú mismo')}</p>
+          <p className="check-title">{t('Check it yourself', 'Compruébalo tú')}</p>
           <p className="check-repo">ConductionNL/shillinq</p>
           <p className="check-note">{t('Open source, built with SDD.', 'Open source, hecha con SDD.')}<br />{t('160 OpenSpec specs, 273 archived changes.', '160 specs de OpenSpec, 273 cambios archivados.')}</p>
         </div>
@@ -571,7 +571,7 @@ export const scenes: Scene[] = [
       <At at={0}><p className="verdict rocks" style={{ viewTransitionName: 'sdd' }}>SDD rocks!</p></At>
       {/* The loop: each cycle redefines the rule, the small differences chain into drift, drift piles up into divergent versions, and with those in context the AI redefines again. */}
       <Warning at={2} scale={0.62} labels={[t('redefinition', 'redefinición'), t('drift', 'deriva'), t('divergence', 'divergencia')]} />
-      <At at={1}><p className="verdict">{t('But specs should never be', 'Pero las specs nunca deberían ser')}<br />{t('our source of truth', 'nuestra fuente de verdad')}</p></At>
+      <At at={1}><p className="verdict">{t('But specs should never be', 'Pero las specs nunca deberían ser')}<br />{t('your source of truth', 'tu fuente de verdad')}</p></At>
     </div>,
   },
   {
@@ -678,7 +678,7 @@ export const scenes: Scene[] = [
   {
     id: 'trust', act: 4, title: ['Can we trust it?', '¿Podemos fiarnos?'], steps: 1, layout: 'left', form: () => 'question',
     content: t => <div className="questions">
-      <p className="question">{t('Is what was built what had to be built?', '¿Lo que se ha implementado es lo que tenía que implementar?')}</p>
+      <p className="question">{t('Is what was built what had to be built?', '¿Lo que se ha implementado es lo que había que implementar?')}</p>
       <At at={1}><p className="question strong">{t('Can we trust AI?', '¿Podemos fiarnos de la IA?')}</p></At>
     </div>,
   },
