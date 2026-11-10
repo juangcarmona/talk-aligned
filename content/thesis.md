@@ -1,8 +1,9 @@
 # Thesis
 
-**Talk:** AI-Assisted Development at Scale: Keeping Product Decisions, Specs, and Agents Aligned
-**Event:** X-Ops Conference Madrid 2026 · Aula Magna, Universidad Rey Juan Carlos (Móstoles) · Saturday 21 November 2026
-**Slot:** 50 minutes: about 40 of talk, the rest for questions
+**Talk:** Las specs no deberían ser tu fuente de verdad (AI-Assisted Development at Scale)
+**Event:** NetCoreConf Barcelona 2026 · Centre Urquinaona, Plaça Urquinaona 10, Barcelona · Saturday 12 December 2026 (submitted; acceptance por confirmar con Juan)
+**Slot:** por confirmar con Juan; the deck runs about 40 minutes
+**Before:** prepared for X-Ops Conference Madrid 2026 (21 November 2026), cancelled by the organisers
 **Speaker:** Juan G. Carmona, Software Development Engineer at Plain Concepts
 **Language:** English
 

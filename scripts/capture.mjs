@@ -15,8 +15,8 @@ try {
     const page = await browser.newPage({ viewport: { width: 1920, height: 1080 } })
     await page.goto(`${base}?print&lang=${lang}`, { waitUntil: 'networkidle' })
     await page.waitForTimeout(500)
-    await page.pdf({ path: `aligned-xops-madrid-2026${lang === 'es' ? '-es' : ''}.pdf`, width: '1920px', height: '1080px', printBackground: true })
-    console.log('aligned-xops-madrid-2026.pdf')
+    await page.pdf({ path: `aligned-netcoreconf-barcelona-2026${lang === 'es' ? '-es' : ''}.pdf`, width: '1920px', height: '1080px', printBackground: true })
+    console.log('aligned-netcoreconf-barcelona-2026.pdf')
   } else if (mode === 'og') {
     const page = await browser.newPage({ viewport: { width: 1200, height: 630 } })
     await page.goto(`${base}?embed#/title`, { waitUntil: 'networkidle' })

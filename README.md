@@ -1,6 +1,8 @@
 # Aligned
 
-*AI-Assisted Development at Scale: Keeping Product Decisions, Specs, and Agents Aligned.* Talk by Juan G. Carmona, X-Ops Conference Madrid 2026, Aula Magna, Universidad Rey Juan Carlos, Saturday 21 November 2026. 50-minute slot: about 40 minutes of talk, then questions.
+*Specs shouldn't be your source of truth* (*Las specs no deberían ser tu fuente de verdad*). AI-Assisted Development at Scale. Talk by Juan G. Carmona, NetCoreConf Barcelona 2026, Centre Urquinaona, Barcelona, Saturday 12 December 2026. Slot length por confirmar con Juan; the deck runs about 40 minutes.
+
+First prepared for X-Ops Conference Madrid 2026 (21 November 2026), which was cancelled; that version is tagged `xops-madrid-2026`.
 
 Published at **https://aligned.jgcarmona.com**.
 
@@ -62,7 +64,7 @@ After `npm run build`:
 npm run pdf
 ```
 
-writes `aligned-xops-madrid-2026.pdf`, one 1920×1080 page per scene at its final step (from `?print`).
+writes `aligned-netcoreconf-barcelona-2026.pdf`, one 1920×1080 page per scene at its final step (from `?print`).
 
 ```bash
 npm run shots
@@ -105,4 +107,4 @@ Custom domain `aligned.jgcarmona.com` is attached to the `talk-aligned` Pages pr
 
 ## Editions
 
-Each edition gets a git tag: `xops-madrid-2026`.
+Each edition gets a git tag: `xops-madrid-2026`, then `netcoreconf-barcelona-2026`.

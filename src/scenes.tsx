@@ -470,17 +470,17 @@ function SpecFile({ t }: { t: T }) {
 
 export const scenes: Scene[] = [
   {
-    id: 'title', act: 0, title: ['AI-Assisted Development at Scale', 'AI-Assisted Development at Scale'], steps: 0, layout: 'center', form: () => 'noise',
+    id: 'title', act: 0, title: ["Specs shouldn't be your source of truth", 'Las specs no deberían ser tu fuente de verdad'], steps: 0, layout: 'center', form: () => 'noise',
     content: t => <div className="title">
-      <p className="eyebrow">Product Definition as Code</p>
-      <h1>AI-Assisted Development at Scale</h1>
-      <p className="subtitle">Keeping Product Decisions, Specs, and Agents Aligned</p>
+      <p className="eyebrow">AI-Assisted Development at Scale</p>
+      <h1>{t("Specs shouldn't be", 'Las specs no deberían ser')}<br />{t('your source of truth', 'tu fuente de verdad')}</h1>
+      <p className="subtitle">{t('Product and architecture, versioned and verifiable', 'Producto y arquitectura, versionados y verificables')}</p>
       <dl className="title-block">
         <div><dt>{t('Speaker', 'Ponente')}</dt><dd>Juan G. Carmona</dd></div>
         <div><dt>{t('Role', 'Puesto')}</dt><dd>Software Development Engineer · Plain Concepts</dd></div>
-        <div><dt>{t('Event', 'Evento')}</dt><dd>X-Ops Conference Madrid 2026</dd></div>
-        <div><dt>{t('Place', 'Lugar')}</dt><dd>Aula Magna · URJC Móstoles</dd></div>
-        <div><dt>{t('Date', 'Fecha')}</dt><dd>2026-11-21</dd></div>
+        <div><dt>{t('Event', 'Evento')}</dt><dd>NetCoreConf Barcelona 2026</dd></div>
+        <div><dt>{t('Place', 'Lugar')}</dt><dd>Centre Urquinaona · Barcelona</dd></div>
+        <div><dt>{t('Date', 'Fecha')}</dt><dd>2026-12-12</dd></div>
       </dl>
     </div>,
   },

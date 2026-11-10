@@ -12,7 +12,7 @@ Eighteen scenes, 40 minutes. Each has a stable ID (its URL is `/#/<id>`), what i
 ---
 
 ### 1. `title` · 1 min
-- **On screen:** "AI-Assisted Development at Scale" / "Keeping Product Decisions, Specs, and Agents Aligned" · Juan G. Carmona · Software Development Engineer, Plain Concepts · X-Ops Conference Madrid 2026 · Aula Magna, URJC · 21 Nov 2026.
+- **On screen:** eyebrow "AI-Assisted Development at Scale"; title "Specs shouldn't be / your source of truth" / "Las specs no deberían ser / tu fuente de verdad" (Spanish title from the NetCoreConf Barcelona submission; English **[proposal]**); subtitle "Product and architecture, versioned and verifiable" / "Producto y arquitectura, versionados y verificables" (**[proposal]**, from the submission abstract, chosen by Juan 2026-11-10) · Juan G. Carmona · Software Development Engineer, Plain Concepts · NetCoreConf Barcelona 2026 · Centre Urquinaona, Barcelona · 12 Dec 2026 (Sessionize, read 2026-11-10).
 - **Motion:** Glyph noise drifting on the blueprint grid; dimension lines frame the title like a drawing sheet with a title block.
 - **Sources:** title ABS; role ABS speaker line ("Software Development Engineer at Plain Concepts"); place and date JUAN.
 

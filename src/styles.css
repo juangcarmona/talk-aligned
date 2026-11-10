@@ -453,7 +453,7 @@ blockquote { margin: 0; font-size: 46px; line-height: 1.2; font-weight: 600; bor
 /* Title and closing */
 .title { width: 1500px; display: grid; gap: 18px; }
 .eyebrow { margin: 0; font: 600 26px var(--mono); letter-spacing: .18em; text-transform: uppercase; color: var(--accent); }
-.title h1 { margin: 0; font-size: 116px; line-height: 1; letter-spacing: -.02em; }
+.title h1 { margin: 0; font-size: 104px; line-height: 1.04; letter-spacing: -.02em; white-space: nowrap; }
 .subtitle { margin: 0 0 40px; font-size: 50px; color: var(--muted); font-weight: 500; }
 .title-block { margin: 0; justify-self: end; display: grid; grid-template-columns: auto auto; border: 1.5px solid rgb(122 167 255 / 50%); background: rgb(11 22 48 / 88%); font-size: 24px; }
 .title-block div { display: contents; }
