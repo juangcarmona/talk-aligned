@@ -40,12 +40,12 @@ Agreed with Juan on 2026-11-04; the SDD sandwich (sheets 5–9) on 2026-11-05. N
 | # | Scene | Act | Min | Carries |
 | --- | --- | --- | --- | --- |
 | 1 | `title` | — | 1 | Who, where |
-| 2 | `lifecycle` | I · Why | 2 | The SDLC timeline; AI investment in the middle; the bottleneck moves left (NUT 1–2) |
+| 2 | `lifecycle` | I · Why | 2 | The SDLC timeline, from the problem; AI investment in the middle; the bottleneck moves left (NUT 1–2) |
 | 3 | `fragments` | I · Why | 2 | "AI doesn't have a product model. It has fragments." (NUT 3) |
 | 4 | `direction` | I · Why | 2 | Without direction, people and AI build at random; with it, every decision aims somewhere |
 | 5 | `sdd-rocks` | I · Why | 1 | "SDD rocks!": who knows it, who uses it. The top of the sandwich |
 | 6 | `noise` | I · Why | 2 | One rule, three refund specs, three directions; ×160 |
-| 7 | `shillinq` | I · Why | 1 | A real case, line by line, with a QR to check it; validation checks shape, not meaning |
+| 7 | `shillinq` | I · Why | 1 | A real case, line by line, with a QR to check it; when two specs contradict each other, which one should the agent follow? |
 | 8 | `before` | I · Why | 3 | Ticket by ticket without a definition: undo, redo, rework |
 | 9 | `not-truth` | I · Why | 1 | Back to "SDD rocks!", but specs should never be your source of truth: redefinition → drift → divergence |
 | 10 | `two-truths` | II · The turn | 2 | Product and architecture; SDD feeds from them |
@@ -53,12 +53,11 @@ Agreed with Juan on 2026-11-04; the SDD sandwich (sheets 5–9) on 2026-11-05. N
 | 12 | `graph` | III · How | 4 | The demo product as a navigable graph |
 | 13 | `product-code` | III · How | 2 | A node lights the code tokens that implement it |
 | 14 | `cite` | III · How | 3 | BR-REFUND-001 and the four files that cite it |
-| 15 | `drift` | III · How | 3 | CHG-REFUND-002: 30 → 14; the citations go stale; CI fails |
-| 16 | `change` | III · How | 1 | AI proposes, code validates, a person accepts |
-| 17 | `trust` | IV · Verify | 1 | Is what was built what had to be built? Can we trust AI? |
-| 18 | `tests` | IV · Verify | 3 | From pyramid to hourglass; SB-driven e2e know what to adapt |
-| 19 | `closing` | V · Closing | 2 | Uncle Bob doesn't read his agents' code: what do we read? The intent. Tools check shape; meaning is ours |
-| 20 | `url` | — | 1 | `aligned.jgcarmona.com` + QR, then questions |
+| 15 | `drift` | III · How | 4 | CHG-REFUND-002: 30 → 14; a person proposes with AI, the CLI validates, an owner accepts; six citations go stale; CI fails |
+| 16 | `trust` | IV · Verify | 1 | Is what was built what had to be built? Can we trust AI? |
+| 17 | `tests` | IV · Verify | 3 | From pyramid to hourglass; SB-driven e2e know what to adapt |
+| 18 | `closing` | V · Closing | 2 | Uncle Bob doesn't read his agents' code: what do we read? The intent. Tools check shape; meaning is ours |
+| 19 | `url` | — | 1 | `aligned.jgcarmona.com` + QR, then questions |
 | | | | **40** | |
 
 ## Reused from Ingeniería del Software 2.0

@@ -8,11 +8,11 @@ Hi, I'm Juan, Software Development Engineer at Plain Concepts. Specs shouldn't b
 
 ## lifecycle
 
-This is the software lifecycle, left to right: from an idea to maintenance. And this is where we are today: development. [click] This is where the AI investment is going: code assistants, test generators, review bots, CI copilots, incident analysers. Development, DevOps, operations. It's useful, and getting saturated. [click] As implementation gets automated, the bottleneck moves left. To the product: who is it for, which behaviour should exist, which rules govern it. That's where the next opportunity is.
+This is the software lifecycle, left to right: from a problem to maintenance. Everything starts with a problem, before an idea: it is the trigger, and it is what we validate against at the end. And this is where we are today: development. [click] This is where the AI investment is going: code assistants, test generators, review bots, CI copilots, incident analysers. Development, DevOps, operations. It's useful, and getting saturated. [click] As implementation gets automated, the bottleneck moves left. To the problem and the product: which problem are we solving, who is it for, which behaviour should exist, which rules govern it. That's where the next opportunity is.
 
 ## fragments
 
-And on the left there's a jumble. Product decisions in Jira. Conversations in Slack or Teams. Long reasoning in docs, or in some Confluence page. Half of it in meetings nobody wrote down. The rest in code comments and in the heads of two senior engineers. AI doesn't have a product model. It has fragments. And it has to rebuild meaning from those fragments on every invocation, with no guarantee it rebuilds the same meaning twice.
+This is what there is: a jumble. On the left, who asks for it: stakeholders and customers. In the middle, who interprets it: the Product Owner and the developers. On the right, where it ends up written down, partly: product decisions in Jira, conversations in Slack or Teams, half of it in meetings nobody wrote down, long reasoning in docs or in some Confluence page, and the rest in the code and in the heads of two senior engineers. Something is lost at every hop. AI doesn't have a product model. It has fragments. And it has to rebuild meaning from those fragments on every invocation, with no guarantee it rebuilds the same meaning twice.
 
 ## direction
 
@@ -28,7 +28,7 @@ It works. But what happens at scale? Let's take one rule: the refund. One concep
 
 ## shillinq
 
-This is a real case: Shillinq, an open-source accounting suite built with SDD. 160 OpenSpec specs, 273 archived changes. Its VAT spec forbids a service and, 380 lines further down in the same file, requires it. Both MUST. When two specs contradict each other, which one should the agent follow? I found this in a quick search, and you can check it yourselves: the QR opens the file, at these lines. I told the maintainers and nobody answered. [click] And validation checks shape, not meaning.
+This is a real case: Shillinq, an open-source accounting suite built with SDD. 160 OpenSpec specs, 273 archived changes. Its VAT spec forbids a service and, 380 lines further down in the same file, requires it. Both MUST. I found this in a quick search, and you can check it yourselves: the QR opens the file, at these lines. I told the maintainers and nobody answered. [click] When two specs contradict each other, which one should the agent follow?
 
 ## before
 
@@ -44,7 +44,7 @@ So SDD stays, but it gets a good source of truth. Two, in fact. As software engi
 
 ## after
 
-Now the same system with the product defined, and a backlog that starts with the architecture. The future can already be sensed: the outline is there, a bit blurred, before anything is written. [click] Ticket 101: authentication and authorization. It runs across every slice. [click] Cross-cutting concerns: logs, validation, error handling. [click] The domain model, domain-driven design: the language every slice will share. [click] And the infrastructure: data, CI/CD. These first tickets lay the foundations of a vertical slice architecture. [click] Now the slices, one by one. Add to cart and check out: each lands in its own vertical, on top of what's already there. [click] Pay and cancel. Nothing built earlier moves; every earlier ticket stays done. [click] Request a refund and approve it. It's paint by numbers. [click] Browse, search, track, history: done. [click] Direction gives us a guide, and the guide gets us to delivery.
+Now the same system with the product defined, and a backlog that starts with the architecture. The future can already be sensed: the outline is there, a bit blurred, before anything is written. [click] Ticket 101: the foundations first, the infrastructure: data, CI/CD. It's what every slice needs to exist, and the most expensive thing to change later. [click] The domain model, domain-driven design: the language every slice will share. [click] Cross-cutting concerns: logs, validation, error handling. [click] And authentication and authorization, which runs across every slice and builds on all of that: it needs somewhere to store users and a domain that says what a permission is. These first tickets lay the foundations of a vertical slice architecture, though they are not complete: they grow and get reorganised as the slices land. [click] Now the slices, one by one. Add to cart and check out: each lands in its own vertical, on top of what's already there. [click] Pay and cancel. Nothing built earlier moves; every earlier ticket stays done. [click] Request a refund and approve it. It's paint by numbers. [click] Browse, search, track, history: done. [click] Direction gives us a guide, and the guide gets us to delivery.
 
 ## graph
 
@@ -60,11 +60,7 @@ Back to the demo shop. The refund window lives once: BR-REFUND-001, 30 days from
 
 ## drift
 
-Now let's change it. Same rule, same four citations, all current. Verify: six citations in the repository, all current, exit zero. [click] Finance wants 14 days. That's a Product Change, CHG-REFUND-002: it changes the rule and its two examples. The tool validates it as an overlay, a person approves it and apply writes it. [click] Verify again. The digest no longer matches, so one by one they go stale: the spec, the agent skill, the code and the test, and the end-to-end scenarios too. PRODUCT061, exit 1. The job fails: CI catches the drift. [click] Four states: current; stale; tampered, when someone edits an embedded copy; and unresolved, when the ID doesn't exist.
-
-## change
-
-And who decides that change? Three beats. AI proposes: an agent can draft CHG-REFUND-002, from 30 to 14 days. [click] Code validates: the overlay has 0 errors, and verify tells us that six citations are now stale. [click] And a person accepts, with the merge. Apply writes the change and commits nothing: open a pull request so a human can accept it. No tool approves or merges, ever.
+Now the product changes, and we want to know what it affects. Same rule, same citations, all current. Verify: six citations in the repository, all current, exit zero: the spec, the agent skill, the code, the unit test, and two e2e scenarios. And up here, who does what in a change: a person proposes, with AI; the CLI validates; an owner accepts. [click] Finance wants 14 days. A person proposes the change, and the AI helps: it walks the graph, sees what the rule touches and drafts the Product Change, CHG-REFUND-002, which changes the rule and its two examples. It stays a draft. [click] The CLI validates the change against the 39 accepted artifacts: 0 errors. It is the CLI, applying the rules, not the AI. [click] And an owner accepts: the Product Owner or the stakeholders. They approve it and apply writes the change, but commits nothing: it tells you to open a pull request so a human can accept it. No tool approves or merges, ever. [click] In that pull request, CI verifies again. The digest no longer matches, so one by one they go stale, all six: the spec, the agent skill, the code, the test and the two e2e scenarios. PRODUCT061, exit 1. The job fails: CI catches the drift. [click] Four states: current; stale; tampered, when someone edits an embedded copy; and unresolved, when the ID doesn't exist.
 
 ## trust
 

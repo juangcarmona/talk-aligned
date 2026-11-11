@@ -21,6 +21,8 @@ export type System = {
   tint: string[][]
   cloud: (Point & { z: number })[]
   ghost: [number, number][]
+  /** After: the step each block is laid at, and the step it later moves to another piece of the drawing (a whole block at a time). */
+  grow: { born: number[]; move: ({ step: number; dx: number; dy: number } | null)[] }
   column: number
   gap: number
 }
@@ -48,7 +50,7 @@ export const iterationOf = [1, 2, 2, 3, 3, 3, 4, 4, 5, 5]
 export const AFTER_STEPS = 8
 export const sliceStep = [5, 5, 6, 6, 7, 7, 8, 8, 8, 8]
 export function builtAt(home: Home) {
-  return home.band >= 0 ? home.band + 1 : home.store >= 0 ? 4 : sliceStep[home.f]
+  return home.band >= 0 ? 4 - home.band : home.store >= 0 ? 1 : sliceStep[home.f]
 }
 /** After: how blurred the grey outline still is at step k. */
 export const blurAt = (k: number) => 7 - (5 * k) / AFTER_STEPS
@@ -85,12 +87,13 @@ export function system(rect: Rect): System {
   // Each cycle adds a little and redoes almost everything.
   const written = [0.22, 0.34, 0.46, 0.58, 0.7]
   const rework = [0, 0.9, 0.9, 0.9, 0.9]
-  const amplitude = [220, 180, 150, 125, 110].map(a => a * s)
-  const jitter = [40, 32, 26, 20, 16].map(a => a * s)
-  // The last two cycles look like an architecture, but are not: whole pieces come loose and
-  // land somewhere else, the cross-cutting bands show up in several places at once, and
-  // features take each other's colours.
-  const chaos = [0, 0, 0, 0.7, 1]
+  // The first cycles misread the product badly; the last two settle into the shape of an architecture.
+  const amplitude = [220, 180, 150, 60, 20].map(a => a * s)
+  const jitter = [40, 32, 26, 9, 4].map(a => a * s)
+  // The last two cycles look like an architecture, but are not: a few whole pieces sit in the
+  // wrong column, bits of the cross-cutting bands show up inside features, and a piece or two
+  // takes another feature's colour. Most of it is still where it belongs.
+  const chaos = [0, 0, 0, 0.6, 1]
   const palette = [color.br, color.term, color.uc, color.bc, color.act]
   const piece = { w: 70 * s, h: 64 * s }
   const before: (Point | null)[][] = [homes.map(() => null)]
@@ -106,9 +109,14 @@ export function system(rect: Rect): System {
       let found = pieces.get(key)
       if (!found) {
         const cx = x0 + (ix + 0.5) * piece.w, cy = y0 + (iy + 0.5) * piece.h
-        const jump = home.band >= 0 ? random() < 0.55 * chaos[k] : random() < 0.28 * chaos[k]
-        const to = home.band >= 0 ? { x: x0 + random() * w, y: y0 + (0.2 + random() * 0.75) * h } : { x: cx + (random() - 0.5) * 360 * s, y: cy + (random() - 0.5) * 280 * s }
-        found = { dx: jump ? to.x - cx : 0, dy: jump ? to.y - cy : 0, c: random() < 0.4 * chaos[k] ? palette[Math.floor(random() * palette.length)] : null }
+        const jump = home.band >= 0 ? random() < 0.3 * chaos[k] : random() < 0.2 * chaos[k]
+        // A feature piece moves a whole column or two sideways and a piece up or down, so it still lines up with the grid; a band piece lands inside a feature.
+        const column1 = column + gap
+        const shift = (1 + Math.floor(random() * 2)) * (random() < 0.5 ? -1 : 1)
+        const to = home.band >= 0
+          ? { x: x0 + Math.floor(random() * FEATURES) * column1 + column / 2, y: y0 + (FEATURE_TOP + random() * (FEATURE_BOTTOM - FEATURE_TOP)) * h }
+          : { x: cx + shift * column1, y: cy + Math.round((random() - 0.5) * 3) * piece.h }
+        found = { dx: jump ? to.x - cx : 0, dy: jump ? to.y - cy : 0, c: random() < 0.12 * chaos[k] ? palette[Math.floor(random() * palette.length)] : null }
         pieces.set(key, found)
       }
       return found
@@ -139,7 +147,54 @@ export function system(rect: Rect): System {
   const blurRandom = rng(3)
   const ghost = homes.map((): [number, number] => { const th = blurRandom() * Math.PI * 2, r = 0.3 + blurRandom() * 0.7; return [r * Math.cos(th), r * Math.sin(th)] })
 
-  const result = { rect, homes, before, tint, cloud, ghost, column, gap }
+  // After: the architecture is not complete on day one. Each layer is laid in pieces (a piece is a block of
+  // tokens about a column wide): some pieces with the ticket that opens the layer, the rest added while the slices
+  // land. Some pieces later swap places with another, along their layer or with the layer next to it, so the
+  // drawing keeps its shape while the blocks change places.
+  const grown = rng(29)
+  const nx = Math.max(1, Math.round(w / piece.w))
+  const opening = [0.55, 0.4, 0.45, 0.5]
+  type Swap = { step: number; dx: number; dy: number }
+  type Block = { layer: number; store: number; ix: number; born: number; swap: Swap | null }
+  const blocks = new Map<string, Block>()
+  const keyOf = (layer: number, store: number, ix: number) => `${layer}:${store}:${ix}`
+  const blockOf = (home: Home): Block => {
+    const layer = home.band >= 0 ? home.band : 3
+    const ix = Math.min(nx - 1, Math.floor((home.x - x0) / piece.w))
+    const key = keyOf(layer, home.store, ix)
+    let block = blocks.get(key)
+    if (!block) {
+      const first = home.band >= 0 ? 4 - home.band : 1
+      block = { layer, store: home.store, ix, born: grown() < opening[layer] ? first : first + 1 + Math.floor(grown() * (AFTER_STEPS - first)), swap: null }
+      blocks.set(key, block)
+    }
+    return block
+  }
+  homes.forEach(home => { if (home.band >= 0 || home.store >= 0) blockOf(home) })
+  const lo = (store: number) => (store === 1 ? Math.floor(split / piece.w) : 0)
+  const hi = (store: number) => (store === 0 ? Math.floor((split - gap) / piece.w) : nx - 1)
+  for (const block of [...blocks.values()]) {
+    if (block.swap || block.born >= AFTER_STEPS || grown() >= 0.3) continue
+    let layer = block.layer, ix = block.ix
+    if (layer < 3 && grown() < 0.4) layer += grown() < 0.5 ? -1 : 1
+    else ix += (grown() < 0.5 ? -1 : 1) * (1 + Math.floor(grown() * 2))
+    if (layer < 0 || layer > (block.layer === 3 ? 3 : 2) || ix < lo(block.store) || ix > hi(block.store)) continue
+    const other = blocks.get(keyOf(layer, block.store, ix))
+    if (!other || other === block || other.swap || other.born >= AFTER_STEPS) continue
+    const later = Math.max(block.born, other.born)
+    const step = later + 1 + Math.floor(grown() * (AFTER_STEPS - later))
+    const dx = (ix - block.ix) * piece.w, dy = (layer - block.layer) * BAND_STEP * h
+    block.swap = { step, dx, dy }
+    other.swap = { step, dx: -dx, dy: -dy }
+  }
+  const born: number[] = [], move: (Swap | null)[] = []
+  homes.forEach(home => {
+    if (home.band < 0 && home.store < 0) { born.push(sliceStep[home.f]); move.push(null); return }
+    const block = blockOf(home)
+    born.push(block.born); move.push(block.swap)
+  })
+
+  const result = { rect, homes, before, tint, cloud, ghost, grow: { born, move }, column, gap }
   cache.set(key, result)
   return result
 }

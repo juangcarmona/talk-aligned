@@ -8,11 +8,11 @@ Hola, soy Juan, Software Development Engineer en Plain Concepts. Las specs no de
 
 ## lifecycle
 
-Este es el ciclo de vida del software, de izquierda a derecha: de una idea al mantenimiento. Y aquí estamos hoy: en desarrollo. [click] Aquí es donde va la inversión en IA: asistentes de código, generadores de tests, bots de revisión, copilotos de CI, análisis de incidencias. Desarrollo, DevOps, operaciones. Es útil, y está cada vez más saturado. [click] Cuanto más se automatiza la implementación, más se mueve el cuello de botella a la izquierda. Al producto: para quién es, qué comportamiento debe existir, qué reglas lo gobiernan. Ahí está la siguiente oportunidad.
+Este es el ciclo de vida del software, de izquierda a derecha: de un problema al mantenimiento. Todo empieza en un problema, antes que en una idea: es el detonante, y es contra lo que se valida al final. Y aquí estamos hoy: en desarrollo. [click] Aquí es donde va la inversión en IA: asistentes de código, generadores de tests, bots de revisión, copilotos de CI, análisis de incidencias. Desarrollo, DevOps, operaciones. Es útil, y está cada vez más saturado. [click] Cuanto más se automatiza la implementación, más se mueve el cuello de botella a la izquierda. Al problema y al producto: qué problema resolvemos, para quién es, qué comportamiento debe existir, qué reglas lo gobiernan. Ahí está la siguiente oportunidad.
 
 ## fragments
 
-Y a la izquierda hay un batiburrillo. Decisiones de producto en Jira. Conversaciones en Slack o Teams. Razonamientos largos en documentos, o en alguna página de Confluence. La mitad en reuniones que nadie apuntó. El resto en comentarios de código y en la cabeza de dos ingenieros senior. La IA no tiene un modelo de producto. Tiene fragmentos. Y tiene que reconstruir el significado a partir de esos fragmentos en cada invocación, sin garantía de reconstruir el mismo dos veces.
+Esto es lo que hay: un batiburrillo. A la izquierda, quien lo pide: stakeholders y clientes. En medio, quien lo interpreta: el Product Owner y los desarrolladores. A la derecha, donde queda escrito, a medias: decisiones de producto en Jira, conversaciones en Slack o Teams, la mitad en reuniones que nadie apuntó, razonamientos largos en documentos o en alguna página de Confluence, y el resto en el código y en la cabeza de dos ingenieros senior. En cada salto se pierde algo. La IA no tiene un modelo de producto. Tiene fragmentos. Y tiene que reconstruir el significado a partir de esos fragmentos en cada invocación, sin garantía de reconstruir el mismo dos veces.
 
 ## direction
 
@@ -28,7 +28,7 @@ Funciona. Pero ¿qué pasa a escala? Tomemos una regla: la devolución del diner
 
 ## shillinq
 
-Esto es un caso real: Shillinq, una suite de contabilidad open source hecha con SDD. 160 specs de OpenSpec, 273 cambios archivados. Su spec del IVA prohíbe un servicio y, 380 líneas más abajo en el mismo fichero, lo exige. Las dos con MUST. Cuando dos specs se contradicen, ¿a cuál debería hacer caso el agente? Lo encontré en una búsqueda rápida, y podéis comprobarlo vosotros mismos: el QR abre el fichero, en estas líneas. Se lo conté a los mantenedores y nadie contestó. [click] Y la validación comprueba la forma, no el significado.
+Esto es un caso real: Shillinq, una suite de contabilidad open source hecha con SDD. 160 specs de OpenSpec, 273 cambios archivados. Su spec del IVA prohíbe un servicio y, 380 líneas más abajo en el mismo fichero, lo exige. Las dos con MUST. Lo encontré en una búsqueda rápida, y podéis comprobarlo vosotros mismos: el QR abre el fichero, en estas líneas. Se lo conté a los mantenedores y nadie contestó. [click] Cuando dos specs se contradicen, ¿a cuál debería hacer caso el agente?
 
 ## before
 
@@ -44,7 +44,7 @@ Así que SDD se queda, pero con una buena fuente de verdad. Dos, de hecho. Como 
 
 ## after
 
-Ahora el mismo sistema con el producto definido, y un backlog que empieza por la arquitectura. El futuro ya se intuye: el contorno está ahí, un poco difuso, antes de escribir nada. [click] Ticket 101: autenticación y autorización. Atraviesa todas las slices. [click] Lo transversal: logs, validación, gestión de errores. [click] El modelo de dominio, domain-driven design: el lenguaje que van a compartir todas las slices. [click] Y la infraestructura: datos, CI/CD. Estos primeros tickets sientan las bases de una vertical slice architecture. [click] Ahora las slices, una a una. Añadir al carrito y checkout: cada una aterriza en su vertical, encima de lo que ya hay. [click] Pago y cancelación. Lo construido no se mueve; los tickets anteriores siguen terminados. [click] Pedir una devolución y aprobarla. Es un pinta y colorea. [click] Catálogo, búsqueda, seguimiento, historial: terminado. [click] La dirección nos da una guía, y la guía nos lleva a la entrega.
+Ahora el mismo sistema con el producto definido, y un backlog que empieza por la arquitectura. El futuro ya se intuye: el contorno está ahí, un poco difuso, antes de escribir nada. [click] Ticket 101: primero los cimientos, la infraestructura: datos, CI/CD. Es lo que todas las slices necesitan para existir, y lo más caro de cambiar después. [click] El modelo de dominio, domain-driven design: el lenguaje que van a compartir todas las slices. [click] Lo transversal: logs, validación, gestión de errores. [click] Y la autenticación y autorización, que atraviesa todas las slices y se apoya en todo lo anterior: necesita dónde guardar usuarios y un dominio que diga qué es un permiso. Estos primeros tickets sientan las bases de una vertical slice architecture, aunque no quedan completos: crecen y se reorganizan a medida que llegan las slices. [click] Ahora las slices, una a una. Añadir al carrito y checkout: cada una aterriza en su vertical, encima de lo que ya hay. [click] Pago y cancelación. Lo construido no se mueve; los tickets anteriores siguen terminados. [click] Pedir una devolución y aprobarla. Es un pinta y colorea. [click] Catálogo, búsqueda, seguimiento, historial: terminado. [click] La dirección nos da una guía, y la guía nos lleva a la entrega.
 
 ## graph
 
@@ -60,11 +60,7 @@ Volvemos a la tienda de demo. El plazo de devolución vive una sola vez: BR-REFU
 
 ## drift
 
-Ahora la cambiamos. La misma regla, las mismas cuatro citas, todas current. Verify: seis citas en el repositorio, todas current, exit cero. [click] Finanzas quiere 14 días. Eso es un Product Change, CHG-REFUND-002: cambia la regla y sus dos ejemplos. La herramienta lo valida como overlay, una persona lo aprueba y apply lo escribe. [click] Volvemos a verificar. El digest ya no coincide, así que una a una pasan a stale: la spec, la skill del agente, el código y el test, y también los escenarios end-to-end. PRODUCT061, exit 1. El job falla: CI detecta la deriva. [click] Cuatro estados: current; stale; tampered, cuando alguien edita una copia incrustada; y unresolved, cuando el ID no existe.
-
-## change
-
-¿Y quién decide ese cambio? Tres pasos. La IA propone: un agente puede redactar CHG-REFUND-002, de 30 a 14 días. [click] El código valida: el overlay da 0 errores, y verify nos dice que seis citas se han quedado stale. [click] Y una persona acepta, con el merge. Apply escribe el cambio y no hace ningún commit: abre un pull request para que una persona lo acepte. Ninguna herramienta aprueba ni hace merge, nunca.
+Ahora cambia el producto, y queremos saber qué se ve afectado. La misma regla, las mismas citas, todas current. Verify: seis citas en el repositorio, todas current, exit cero: la spec, la skill del agente, el código, el test unitario y dos escenarios e2e. Y arriba, quién hace qué en un cambio: una persona propone, con IA; el CLI valida; un responsable acepta. [click] Finanzas quiere 14 días. Una persona propone el cambio, y la IA ayuda: recorre el grafo, ve qué toca la regla y redacta el borrador del Product Change, CHG-REFUND-002, que cambia la regla y sus dos ejemplos. Queda en borrador. [click] El CLI valida el cambio contra los 39 artefactos aceptados: 0 errores. Lo hace el CLI, aplicando las reglas, no la IA. [click] Y un responsable acepta: el Product Owner o los stakeholders. Lo aprueba y apply escribe el cambio, pero no hace commit: te dice que abras un pull request para que una persona lo acepte. Ninguna herramienta aprueba ni hace merge, nunca. [click] En ese pull request, CI vuelve a verificar. El digest ya no coincide, así que una a una pasan a stale, las seis: la spec, la skill del agente, el código, el test y los dos escenarios e2e. PRODUCT061, exit 1. El job falla: CI detecta la deriva. [click] Cuatro estados: current; stale; tampered, cuando alguien edita una copia incrustada; y unresolved, cuando el ID no existe.
 
 ## trust
 

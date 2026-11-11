@@ -135,10 +135,14 @@ function drawBefore(b: Builder, sys: System, k: number, d = 0.85) {
 
 // After: the final shape is there from the start, grey and slightly blurred;
 // iteration k has built its features exactly in place.
-function drawAfter(b: Builder, sys: System, k: number, d = 0.88) {
+// With `clean`, the architecture is the finished, tidy one (the product-code sheet); otherwise it is laid in
+// pieces, some added late, and a few pieces move (see system.ts).
+function drawAfter(b: Builder, sys: System, k: number, d = 0.88, clean = false) {
   sys.homes.forEach((home, i) => {
     b.group = home.f
-    if (builtAt(home) <= k) b.sheet(home.x, home.y, home.c, d)
+    const move = clean ? null : sys.grow.move[i]
+    const gone = move && k >= move.step
+    if ((clean ? builtAt(home) : sys.grow.born[i]) <= k) b.sheet(home.x + (gone ? move.dx : 0), home.y + (gone ? move.dy : 0), home.c, d)
     else b.sheet(home.x + sys.ghost[i][0] * blurAt(k), home.y + sys.ghost[i][1] * blurAt(k), grey, 0.4 * (d / 0.88))
   })
 }
@@ -156,6 +160,13 @@ const inPoly = (pts: [number, number][]) => (x: number, y: number) => {
   return inside
 }
 const stageIcons: ((p: Pen) => void)[] = [
+  // Problem: a warning triangle with an exclamation mark, the trigger.
+  p => {
+    const tri: [number, number][] = [[0, -46], [46, 34], [-46, 34]]
+    p.fill(inPoly(tri), -46, -46, 46, 34, 110, ink.red, 0.35)
+    tri.forEach((pt, k) => { const [x2, y2] = tri[(k + 1) % 3]; p.line(pt[0], pt[1], x2, y2, 30, ink.red, 0.95) })
+    p.line(0, -20, 0, 6, 12, ink.white, 0.95); p.fill((x, y) => Math.hypot(x, y - 20) < 4.5, -5, 15, 5, 25, 7, ink.white, 0.95)
+  },
   // Ideation: a lit bulb.
   p => {
     p.fill((x, y) => x * x + (y + 14) ** 2 < 30 * 30, -30, -44, 30, 16, 70, ink.yellow, 0.35)
@@ -246,8 +257,8 @@ function drawIcon(b: Builder, k: number, cx: number, cy: number, budget: number,
   b.skip(start + budget - b.i)
 }
 
-/** The SDLC timeline (NUT panel 1): ten stages on one line, in sheet px. */
-export const stages = Array.from({ length: 10 }, (_, k) => ({ x: 170 + k * 176, y: 560 }))
+/** The SDLC timeline (NUT panel 1): eleven stages on one line, in sheet px. */
+export const stages = Array.from({ length: 11 }, (_, k) => ({ x: 150 + k * 162, y: 560 }))
 
 function lifecycle(b: Builder) {
   b.sway = 0
@@ -259,32 +270,32 @@ function lifecycle(b: Builder) {
   stages.forEach(({ x, y }, k) => drawIcon(b, k, x, y - 64, 300))
 }
 
-/** The sources of product knowledge (NUT panel 3), in sheet px. */
+/**
+ * The sources of product knowledge (NUT panel 3), in sheet px, laid out left to right as the knowledge travels:
+ * who asks for it (Stakeholders, Customers), who interprets it (Product Owner, Developers), where it ends up
+ * written down (Jira, Meeting Notes, Slack, Docs & Wiki, Source Code). Close together, and each cluster is a loose
+ * cloud that overlaps its neighbours.
+ */
 export const sources = [
-  { x: 300, y: 560, c: color.act }, { x: 600, y: 760, c: color.jrn }, { x: 1080, y: 340, c: color.bc }, { x: 1180, y: 610, c: color.term },
-  { x: 1100, y: 840, c: color.uc }, { x: 840, y: 910, c: color.fr }, { x: 480, y: 340, c: color.br },
-]
-export const knowledge = { x: 820, y: 590 }
-/** Point groups on the fragments sheet: source k is group k; the grey knowledge cloud is this one. */
-export const KNOWLEDGE_GROUP = 7
+  { x: 340, y: 350, c: color.con }, { x: 340, y: 480, c: color.qr },
+  { x: 700, y: 405, c: color.sb }, { x: 700, y: 680, c: color.fr },
+  { x: 1100, y: 350, c: color.act }, { x: 1100, y: 460, c: color.term }, { x: 1100, y: 570, c: color.jrn }, { x: 1100, y: 680, c: color.bc }, { x: 1100, y: 790, c: color.br },
+].map(s => ({ ...s, y: s.y + 70 }))
+/** Where a third of each cluster's glyphs leak to and never arrive (indexes into sources). */
+const leaks = [2, 2, 4, 6, 8, 6, 3, 8, 7]
+/** "Product Knowledge" is the word in the title: it has no glyphs of its own, hovering it lights the glyphs of every source. */
+export const KNOWLEDGE_GROUP = 9
 
 function fragments(b: Builder) {
   b.sway = 0
-  const pairs = [[0, 1], [0, 6], [1, 5], [2, 3], [3, 4], [4, 5], [6, 2], [1, 3], [0, 4], [5, 2]]
-  pairs.forEach(([a, c]) => b.line((sources[a].x - 960) / 60, (540 - sources[a].y) / 60, (sources[c].x - 960) / 60, (540 - sources[c].y) / 60, 60, color.white, 0.22, true))
-  b.group = KNOWLEDGE_GROUP
-  for (let j = 0; j < 500; j++) {
-    const m = Math.sqrt(-2 * Math.log(Math.max(1e-6, b.random()))), th = b.random() * Math.PI * 2, spread = 1.5
-    b.sheet(knowledge.x + 120 * spread * m * Math.cos(th), knowledge.y + 70 * spread * m * Math.sin(th), grey, 0.22, (b.random() - 0.5) * 2)
-  }
   sources.forEach(({ x, y, c }, k) => {
-    const other = sources[(k + 3) % sources.length]
+    const other = sources[leaks[k]]
     b.group = k
-    for (let j = 0; j < 220; j++) {
+    for (let j = 0; j < 260; j++) {
       const m = Math.sqrt(-2 * Math.log(Math.max(1e-6, b.random()))), th = b.random() * Math.PI * 2
-      // Leaking: a third of each cluster drifts towards another source and never arrives.
+      // Leaking: a third of each cluster drifts towards the next source and never arrives.
       const t = j % 3 === 0 ? 0.2 + b.random() * 0.5 : 0
-      b.sheet(x + (other.x - x) * t + 62 * m * Math.cos(th), y + (other.y - y) * t + 38 * m * Math.sin(th), c, 0.55 + b.random() * 0.3)
+      b.sheet(x + (other.x - x) * t + 84 * m * Math.cos(th), y + (other.y - y) * t + 54 * m * Math.sin(th), c, 0.55 + b.random() * 0.3)
     }
   })
 }
@@ -521,7 +532,7 @@ export function groupMask(name: FormName, level: number[]) {
 
 /** The lifecycle line again, low on the tests sheet, with an arc from Product straight to validation (DevOps, where CI runs the e2e). */
 export const lowStages = stages.map(({ x }) => ({ x, y: 930 }))
-export const validationArc = { from: 1, to: 6, peak: 820 }
+export const validationArc = { from: 2, to: 7, peak: 820 }
 
 function lowLifecycle(b: Builder) {
   lowStages.forEach(({ x, y }, k) => { if (k) for (let j = 0; j < 30; j++) b.sheet(lowStages[k - 1].x + 18 + ((x - lowStages[k - 1].x - 36) * (j + 0.5)) / 30, y, color.accent, 0.3) })
@@ -603,7 +614,7 @@ const builders: Record<FormName, (b: Builder) => void> = {
   'hourglass-stale': b => testShape(b, true, true, true),
   'graph-nodes': b => { b.sway = 0; graphNodes(b, false) },
   // The code first, so point index = home index for the neon masks in graph/code.ts.
-  code: b => { b.sway = 0; drawAfter(b, system(CODE), AFTER_STEPS); b.group = -1; graphNodes(b, true) },
+  code: b => { b.sway = 0; drawAfter(b, system(CODE), AFTER_STEPS, 0.88, true); b.group = -1; graphNodes(b, true) },
   'heading-lost': b => heading(b, false),
   'heading-set': b => heading(b, true),
   two: b => {

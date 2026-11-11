@@ -1,6 +1,6 @@
 import { useContext, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { At, Kind, Person, StepContext, Term } from './components'
-import { agentBall, citeMap, form, groupMask, POINTS, TWO_GROUP, twoDiscs, KNOWLEDGE_GROUP, lifecycleNeon, e2eGroups, e2eMask, e2eRegions, lowStages, validationArc, knowledge, shapes, smallShape, sources, specCards, stages, target, type FormName } from './field/forms'
+import { agentBall, citeMap, form, groupMask, POINTS, TWO_GROUP, twoDiscs, KNOWLEDGE_GROUP, lifecycleNeon, e2eGroups, e2eMask, e2eRegions, lowStages, validationArc, shapes, smallShape, sources, specCards, stages, target, type FormName } from './field/forms'
 import { DISTANCE, highlightPoints } from './field/GlyphField'
 import { AFTER_STEPS, iterationOf, sliceStep } from './field/system'
 import { KindIcon, ProductGraph } from './graph/ProductGraph'
@@ -23,16 +23,39 @@ export type Scene = {
 
 export const acts: [string, string][] = [['', ''], ['I · Why', 'I · Por qué'], ['II · The turn', 'II · El giro'], ['III · How', 'III · Cómo'], ['IV · Verify', 'IV · Verificar'], ['V · Closing', 'V · Cierre']]
 
-const stageNames: [string, string][] = [['Ideation', 'Ideación'], ['Product', 'Producto'], ['Functional Backlog', 'Backlog funcional'], ['Architecture', 'Arquitectura'], ['Design', 'Diseño'], ['Development', 'Desarrollo'], ['DevOps', 'DevOps'], ['Operations', 'Operaciones'], ['SRE', 'SRE'], ['Maintenance', 'Mantenimiento']]
-const sourceNames = ['Jira', 'Slack', 'Docs', 'Meeting Notes', 'Wiki', 'Developers', 'Source Code']
+const stageNames: [string, string][] = [['Problem', 'Problema'], ['Ideation', 'Ideación'], ['Product', 'Producto'], ['Functional Backlog', 'Backlog funcional'], ['Architecture', 'Arquitectura'], ['Design', 'Diseño'], ['Development', 'Desarrollo'], ['DevOps', 'DevOps'], ['Operations', 'Operaciones'], ['SRE', 'SRE'], ['Maintenance', 'Mantenimiento']]
+const sourceNames = ['Stakeholders', 'Customers', 'Product Owner', 'Developers', 'Jira', 'Meeting Notes', 'Slack', 'Docs & Wiki', 'Source Code']
+// Who passes knowledge to whom on the fragments sheet. The verbs are illustrative **[proposal]**.
+const relations: { from: number; to: number; en: string; es: string; dashed?: boolean; below?: boolean }[] = [
+  { from: 0, to: 2, en: 'ask for', es: 'piden' },
+  { from: 1, to: 2, en: 'give feedback', es: 'opinan', below: true },
+  { from: 2, to: 3, en: 'refines with', es: 'refina con' },
+  { from: 2, to: 4, en: 'writes in', es: 'escribe en' },
+  { from: 2, to: 5, en: 'agrees in', es: 'acuerda en', below: true },
+  { from: 3, to: 6, en: 'discuss in', es: 'discuten en' },
+  { from: 3, to: 7, en: 'sometimes', es: 'a veces', dashed: true },
+  { from: 3, to: 8, en: 'implement', es: 'implementan', below: true },
+]
+/** A line between two source labels, from edge to edge, with the middle where its verb goes. */
+function relationLine(from: number, to: number, below = false) {
+  const a = sources[from], b = sources[to]
+  const dx = b.x - a.x, dy = b.y - a.y, len = Math.hypot(dx, dy), ux = dx / len, uy = dy / len
+  const reach = (k: number) => Math.min((sourceNames[k].length * 14.4 + 30) / 2 / Math.max(Math.abs(ux), 1e-6), 22 / Math.max(Math.abs(uy), 1e-6)) + 14
+  const x1 = a.x + ux * reach(from), y1 = a.y + uy * reach(from), x2 = b.x - ux * reach(to), y2 = b.y - uy * reach(to)
+  const mx = (x1 + x2) / 2, my = (y1 + y2) / 2, vertical = Math.abs(ux) < 0.2
+  // The verb sits beside the line, on the upper side, never on it.
+  let nx = -uy, ny = ux
+  if (ny > 0 !== below) { nx = -nx; ny = -ny }
+  return { x1, y1, x2, y2, vertical, lx: vertical ? mx + 18 : mx + nx * 28, ly: vertical ? my : my + ny * 28 }
+}
 const columnNames: [string, string][] = [['Actors', 'Actores'], ['Journeys', 'Journeys'], ['Use cases', 'Casos de uso'], ['Rules and domain', 'Reglas y dominio'], ['Requirements', 'Requisitos'], ['Behaviour', 'Comportamiento']]
 
 // After: the architecture tickets first, each one laying a layer that every slice will stand on.
 const architecture: [string, string][] = [
-  ['Authentication & authorization', 'Autenticación y autorización'],
-  ['Cross-cutting: logs, validation', 'Cross-cutting: logs, validación'],
-  ['Domain model (DDD)', 'Modelo de dominio (DDD)'],
   ['Infrastructure: data, CI/CD', 'Infraestructura: datos, CI/CD'],
+  ['Domain model (DDD)', 'Modelo de dominio (DDD)'],
+  ['Cross-cutting: logs, validation', 'Cross-cutting: logs, validación'],
+  ['Authentication & authorization', 'Autenticación y autorización'],
 ]
 
 /** The backlog beside the before and after drawings: each step takes the next tickets. Before, earlier tickets get reopened; after, they stay done. */
@@ -106,18 +129,32 @@ const citers = [
 ] as { what: readonly [string, string]; file: string; sidecar?: string; c: string; md: boolean }[]
 
 /** The rule on the left and the files that cite it on the right, shared by the cite and drift scenes. */
-function Citers({ t, at, citeAt, staleAt }: { t: T; at: number; citeAt: number; staleAt?: number }) {
+function Citers({ t, at, citeAt, staleAt, e2e }: { t: T; at: number; citeAt: number; staleAt?: number; e2e?: boolean }) {
   const step = useContext(StepContext)
   const digest = <mark>{DEMO_DIGEST.slice(0, 15)}…</mark>
   return <At at={at} className="citers">
     {citers.map(({ what, file, sidecar, c, md }, k) => {
       const stale = staleAt !== undefined && step >= staleAt
       return <div key={file} className="citer" style={{ top: citeMap.citers[k].y, '--c': c, '--k': k } as CSSProperties}>
-        <p className="citer-file"><b>{t(what[0], what[1])}</b><code>{file}</code>{staleAt !== undefined && <span className={`badge ${stale ? 's-stale' : 's-current'}`}>{stale ? 'stale' : 'current'}</span>}</p>
+        <p className="citer-file"><b>{e2e && file.startsWith('tests/') ? 'tests' : t(what[0], what[1])}</b><code>{file}</code>{staleAt !== undefined && <span className={`badge ${stale ? 's-stale' : 's-current'}`}>{stale ? 'stale' : 'current'}</span>}</p>
         <code className={`citer-cite ${step >= citeAt ? 'on' : ''}`}>{md ? <>{'<!-- pdac:cite id="BR-REFUND-001" digest="'}{digest}{'" -->'}</> : <><span className="sidecar">↳ {sidecar}</span>{'  id: BR-REFUND-001  digest: '}{digest}</>}</code>
+        {e2e && file.startsWith('tests/') && <code className={`citer-cite ${step >= citeAt ? 'on' : ''}`}><span className="sidecar">↳ tests/e2e/refund-window.citations.yml</span>{'  id: '}<mark>SB-REFUND-001</mark>{' · '}<mark>SB-REFUND-002</mark></code>}
       </div>
     })}
   </At>
+}
+
+// The three beats of a product change, always on screen: dim until their step, lit on it.
+function DriftBeats({ t }: { t: T }) {
+  const step = useContext(StepContext)
+  const beats = [
+    { at: 1, kind: 'ai', label: t('A person proposes, with AI', 'Una persona propone, con IA'), body: <code>CHG-REFUND-002 · draft</code> },
+    { at: 2, kind: 'code', label: t('The CLI validates', 'El CLI valida'), body: <code>validate · 0 error(s)</code> },
+    { at: 3, kind: 'human', label: t('An owner accepts', 'Un responsable acepta'), body: <><Person /><code>PO / stakeholders</code></> },
+  ]
+  return <ol className="drift-beats">
+    {beats.map(b => <li key={b.kind} className={`drift-beat ${b.kind} ${step === b.at ? 'now' : step > b.at ? 'done' : ''}`}><small>{b.label}</small><span>{b.body}</span></li>)}
+  </ol>
 }
 
 function RuleCard({ change }: { change?: boolean }) {
@@ -165,8 +202,8 @@ function TestImpact({ t }: { t: T }) {
     </button>)}
     {step < 3 && <div className="gwt-panel" key={hover === 'rule' ? 'rule' : shown}>
       {hover === 'rule'
-        ? <><strong>Refund window</strong><p className="gwt">Refunds are accepted within <span className="old">30</span> <span className="new">14</span> days of delivery. → SB-REFUND-001, SB-REFUND-002</p></>
-        : <><strong>{behaviours[shown].title}</strong><p className="gwt"><b>given</b> {behaviours[shown].gwt[0]} · <b>when</b> {behaviours[shown].gwt[1]} · <b>then</b> {behaviours[shown].gwt[2]}</p></>}
+        ? <><strong>Refund window</strong><p className="gwt">Refunds are accepted within <span className="old">30</span> <span className="new">14</span> days of delivery. <span className="keep">→ SB-REFUND-001, SB-REFUND-002</span></p></>
+        : <><strong>{behaviours[shown].title}</strong><div className="gwt-lines">{(['given', 'when', 'then'] as const).map((word, j) => <p key={word}><b>{word}</b>{behaviours[shown].gwt[j]}</p>)}</div></>}
     </div>}
     <p className="e2e-tag" style={{ left: smallShape.x, top: 244 }}><b>E2E</b><code>tests/e2e/</code></p>
     {lowStages.map((s, k) => <span key={k} className={`low-stage ${k === validationArc.from || k === validationArc.to ? 'on' : ''}`} style={{ left: s.x, top: s.y + 22 }}>{t(...stageNames[k])}</span>)}
@@ -310,7 +347,7 @@ function TwoTruths({ t }: { t: T }) {
   const sddLit = (name: 'product' | 'architecture') => (hover === name || part ? 'lit' : '')
   return <>
     <h2>{t('Two sources of truth', 'Dos fuentes de verdad')}</h2>
-    <p className="lead truths-lead">{t('Related. Never confused.', 'Relacionadas. Nunca confundidas.')}</p>
+    <p className="lead truths-lead">{t('Related, never mixed up.', 'Relacionadas, sin mezclarse.')}</p>
     <div className="truths">
       <section className={`truth intent ${sddLit('product')}`} {...hoverOn('product')}><small>{t('Intent', 'Intención')}</small><strong>{t('Product', 'Producto')}</strong><code>docs/product/</code></section>
       <svg className="cites" viewBox="0 0 160 60" aria-hidden="true"><path className="draw dashed" pathLength={1} d="M4 30 H156" /><text x="80" y="18" textAnchor="middle">{t('cites', 'cita')}</text><text x="80" y="54" textAnchor="middle">{t('references', 'referencia')}</text></svg>
@@ -350,7 +387,7 @@ function TwoTruths({ t }: { t: T }) {
 // one glyph at a time, in a new random order each time: each one flashes and stays lit, slowly
 // at first, until all of them are. Leaving fades everything out. The field goes back to normal
 // once the light has faded.
-function Fragments() {
+function Fragments({ t }: { t: T }) {
   const [hover, setHover] = useState<number | null>(null)
   const goal = useRef<number | null>(null)
   goal.current = hover
@@ -395,19 +432,34 @@ function Fragments() {
     return () => { cancelAnimationFrame(frame); highlightPoints(null) }
   }, [])
   const hoverOn = (g: number) => ({ onMouseEnter: () => setHover(g), onMouseLeave: () => setHover(h => (h === g ? null : h)) })
+  const word = <span className={`title-knowledge ${hover === KNOWLEDGE_GROUP ? 'lit' : ''}`} {...hoverOn(KNOWLEDGE_GROUP)}>Product Knowledge</span>
   return <>
-    <span className={`knowledge ${hover === KNOWLEDGE_GROUP ? 'lit' : ''}`} style={{ left: knowledge.x, top: knowledge.y }} {...hoverOn(KNOWLEDGE_GROUP)}>Product Knowledge</span>
-    {sources.map((s, k) => <span key={k} className={`source-name ${hover === k ? 'lit' : ''}`} style={{ left: s.x, top: s.y, '--k': k, '--c': s.c } as CSSProperties} {...hoverOn(k)}>{sourceNames[k]}</span>)}
+    <h2>{t('Where ', 'Dónde vive el ')}{word}{t(' lives', '')}</h2>
+    <div className="overlay">
+      <svg className="flow-edges" viewBox="0 0 1920 1080" aria-hidden="true">
+        <defs><marker id="flow-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></marker></defs>
+        {relations.map(r => {
+          const l = relationLine(r.from, r.to, r.below)
+          const lit = hover === r.from || hover === r.to || hover === KNOWLEDGE_GROUP
+          return <g key={`${r.from}-${r.to}`} className={`flow ${lit ? 'lit' : ''} ${r.dashed ? 'dashed' : ''}`}>
+            <line x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2} markerEnd="url(#flow-arrow)" />
+            <text x={l.lx} y={l.ly} textAnchor={l.vertical ? 'start' : 'middle'} dominantBaseline="central">{t(r.en, r.es)}</text>
+          </g>
+        })}
+      </svg>
+      {sources.map((s, k) => <span key={k} className={`source-name ${hover === k ? 'lit' : ''}`} style={{ left: s.x, top: s.y, '--k': k, '--c': s.c } as CSSProperties} {...hoverOn(k)}>{sourceNames[k]}</span>)}
+      <div className="fragments-line"><p>“AI doesn’t have a product model.</p><p>It has <em>fragments</em>.”</p></div>
+    </div>
   </>
 }
 
 // The lifecycle in light, one distribution per step: spread evenly over the whole line; a bell
 // peaking on Development, where the AI investment is today; a Poisson (λ = 1) peaking between
-// Ideation and Product, the opportunity. Hovering a stage sends a spot of neon along the line
+// Problem, Ideation and Product, the opportunity. Hovering a stage sends a spot of neon along the line
 // to it; leaving lets the step's light come back. Everything eases, nothing snaps.
-const TODAY = 5
-// Poisson P(k) / P(0) for λ = 1, that is 1 / k!.
-const poisson = [1, 1, 2, 6, 24, 120, 720, 5040, 40320, 362880].map(f => 1 / f)
+const TODAY = 6
+// The opportunity: Problem, Ideation and Product fully lit, then a Poisson-like tail (1 / k!) towards the right.
+const poisson = [1, 1, 1, 6, 24, 120, 720, 5040, 40320, 362880, 3628800].map((f, k) => (k < 3 ? 1 : 1 / f * 2))
 const lifecycleLight = [
   stages.map(() => 0.45),
   stages.map((_, k) => Math.exp(-((k - TODAY) ** 2) / (2 * 1.3 ** 2))),
@@ -491,32 +543,25 @@ export const scenes: Scene[] = [
       <div className="overlay">
         <Lifecycle t={t} />
         <At at={1} until={2} className="band-label" style={{ left: stages[TODAY].x, top: 680, transform: 'translateX(-50%)' }}>{t('Where the AI investment is today', 'Dónde está hoy la inversión en IA')}</At>
-        <At at={2} className="band-label future" style={{ left: (stages[0].x + stages[1].x) / 2, top: 680, transform: 'translateX(-50%)' }}>{t('Future opportunity', 'La oportunidad')}</At>
-        <p className="caption" style={{ top: 820 }}>“AI is rapidly accelerating the middle of the lifecycle.”</p>
+        <At at={2} className="band-label future" style={{ left: stages[1].x, top: 680, transform: 'translateX(-50%)' }}>{t('Future opportunity', 'La oportunidad')}</At>
       </div>
     </>,
   },
   {
-    id: 'fragments', act: 1, title: ['Where product knowledge lives', 'Dónde vive el conocimiento de producto'], steps: 0, layout: 'full', form: () => 'fragments',
-    content: t => <>
-      <h2>{t('Where product knowledge lives', 'Dónde vive el conocimiento de producto')}</h2>
-      <div className="overlay">
-        <Fragments />
-        <div className="fragments-line"><p>“AI doesn’t have a product model.</p><p>It has <em>fragments</em>.”</p></div>
-      </div>
-    </>,
+    id: 'fragments', act: 1, title: ['Where Product Knowledge lives', 'Dónde vive el Product Knowledge'], steps: 0, layout: 'full', form: () => 'fragments',
+    content: t => <Fragments t={t} />,
   },
   {
     id: 'direction', act: 1, title: ['Lack of direction', 'Falta de dirección'], steps: 1, layout: 'left', form: step => (step ? 'heading-set' : 'heading-lost'),
     content: t => <div className="swap">
       <At at={0} until={1} className="stack">
         <h2>{t('Lack of direction', 'Falta de dirección')}</h2>
-        <p className="lead">{t('No development team can build without direction.', 'Ningún equipo de desarrollo puede construir sin rumbo.')}</p>
+        <p className="lead">{t('No development team', 'Ningún equipo de desarrollo')}<br />{t('can build without direction.', 'puede construir sin rumbo.')}</p>
         <p className="lead warn">{t('Vibe coding speeds up the disaster.', 'El vibe coding acelera el desastre.')}</p>
       </At>
       <At at={1} className="stack">
         <h2>{t('With direction', 'Con rumbo')}</h2>
-        <p className="lead">{t('A clear direction lets us solve today’s problems without losing sight of the destination.', 'Una dirección clara nos permite resolver los problemas de hoy sin perder de vista el destino.')}</p>
+        <p className="lead">{t('We can solve', 'Podemos resolver')}<br />{t('today’s problems', 'los problemas de hoy')}<br />{t('without losing sight of the destination', 'sin perder de vista el destino')}</p>
       </At>
     </div>,
   },
@@ -551,10 +596,10 @@ export const scenes: Scene[] = [
         <div className="check">
           <QrCode value={SHILLINQ_URL} />
           <p className="check-title">{t('Check it yourself', 'Compruébalo tú')}</p>
-          <p className="check-repo">ConductionNL/shillinq</p>
+          <p className="check-repo"><a href={SHILLINQ_URL} target="_blank" rel="noreferrer">ConductionNL/shillinq</a></p>
           <p className="check-note">{t('Open source, built with SDD.', 'Open source, hecha con SDD.')}<br />{t('160 OpenSpec specs, 273 archived changes.', '160 specs de OpenSpec, 273 cambios archivados.')}</p>
         </div>
-        <At at={1} className="shillinq-punch"><p>“Validation checks shape, not meaning.”</p></At>
+        <At at={1} className="shillinq-punch"><p>{t('When two specs contradict each other,', 'Cuando dos specs se contradicen,')}<br />{t('which one should the agent follow?', '¿a cuál debería hacer caso el agente?')}</p></At>
       </div>
     </>,
   },
@@ -611,12 +656,15 @@ export const scenes: Scene[] = [
     </>,
   },
   {
-    id: 'drift', act: 3, title: ['Change it, and CI knows', 'Cámbiala y CI lo sabe'], steps: 3, layout: 'full', form: step => step >= 2 ? 'drift-stale' : 'drift-current',
+    // The refund change from cite, end to end: who decides (AI proposes, code validates, a person accepts) and what CI sees.
+    // Outputs verbatim from content/evidence/demo/change.txt; long lines end in "…".
+    id: 'drift', act: 3, title: ['The product changes: what does it affect?', 'Cambia el producto: ¿qué se ve afectado?'], steps: 5, layout: 'full', form: step => step >= 4 ? 'drift-stale' : 'drift-current',
     content: t => <>
-      <h2>{t('Change it,', 'Cámbiala')}<br />{t('and CI knows', 'y CI lo sabe')}</h2>
+      <h2 style={{ fontSize: 56 }}>{t('The product changes:', 'Cambia el producto:')}<br />{t('what does it affect?', '¿qué se ve afectado?')}</h2>
       <div className="overlay">
+        <DriftBeats t={t} />
         <RuleCard change />
-        <Citers t={t} at={0} citeAt={0} staleAt={2} />
+        <Citers t={t} at={0} citeAt={0} staleAt={4} e2e />
         <At at={0} until={1} className="cite-foot">
           <Term label={t('Citation verification before the change', 'Verificación de citas antes del cambio')} lines={[
             '$ prodshape citations verify',
@@ -625,52 +673,41 @@ export const scenes: Scene[] = [
           ]} />
         </At>
         <At at={1} until={2} className="cite-foot">
-          <Term label={t('The Product Change is applied', 'Se aplica el Product Change')} lines={[
-            '$ prodshape change apply CHG-REFUND-002',
-            'Product diff: 0 added, 3 modified, 0 removed',
-            'Applied and archived. Nothing was committed: …',
+          <Term label={t('A person proposes the change, with AI helping from the graph', 'Una persona propone el cambio, con la IA ayudando desde el grafo')} lines={[
+            '$ prodshape change create CHG-REFUND-002 \\',
+            '    --title "Shorter refund window"',
+            'Created docs/product/changes/active/chg-refund-002/…',
+            '  (status draft, …)',
           ]} />
         </At>
         <At at={2} until={3} className="cite-foot">
+          <Term label={t('The CLI validates the change against the 39 accepted artifacts', 'El CLI valida el cambio contra los 39 artefactos aceptados')} lines={[
+            '$ prodshape change validate CHG-REFUND-002',
+            '[[0 error(s)]], 0 warning(s) across 39 accepted artifact(s)',
+            'and 1 live change(s)',
+            '# exit 0',
+          ]} />
+        </At>
+        <At at={3} until={4} className="cite-foot">
+          <Term label={t('An owner accepts: the Product Owner or the stakeholders', 'Un responsable acepta: el Product Owner o los stakeholders')} lines={[
+            '$ prodshape change apply CHG-REFUND-002',
+            'Product diff: 0 added, 3 modified, 0 removed',
+            'Applied and archived. Nothing was committed:',
+            '  open a pull request so a human can accept it.',
+          ]} />
+        </At>
+        <At at={4} until={5} className="cite-foot">
           <Term label={t('Citation verification after the change', 'Verificación de citas después del cambio')} lines={[
             '$ prodshape citations verify',
             '6 citation(s): 0 current, [[6 stale]], 0 tampered, 0 unresolved',
             '# exit 1',
           ]} />
         </At>
-        <At at={3} className="cite-foot states">
+        <At at={5} className="cite-foot states">
           <p><b className="s-current">current</b>{t('matches', 'coincide')}</p>
           <p><b className="s-stale">stale</b>{t('artifact changed', 'el artefacto cambió')}</p>
           <p><b className="s-tampered">tampered</b>{t('embedded copy edited', 'copia incrustada editada')}</p>
           <p><b className="s-unresolved">unresolved</b>{t('ID not found', 'ID no encontrado')}</p>
-        </At>
-      </div>
-    </>,
-  },
-  {
-    // Three beats on the refund change from drift, with the tool's own output (content/evidence/demo/change.txt).
-    id: 'change', act: 3, title: ['AI proposes, code validates, a person accepts', 'La IA propone, el código valida, una persona acepta'], steps: 2, layout: 'full', form: step => (['pipeline-1', 'pipeline-2', 'pipeline-3'] as const)[step],
-    content: t => <>
-      <h2>{t('AI proposes, code validates,', 'La IA propone, el código valida,')}<br />{t('a person accepts', 'una persona acepta')}</h2>
-      <div className="beats">
-        <At at={0} className="beat ai">
-          <small>{t('AI proposes', 'La IA propone')}</small>
-          <strong>CHG-REFUND-002</strong>
-          <p>“Shorter refund window”</p>
-          <code>BR-REFUND-001 · 30 → 14 {t('days', 'días')}</code>
-        </At>
-        <At at={1} className="beat code">
-          <small>{t('Code validates', 'El código valida')}</small>
-          <code>$ prodshape change validate</code>
-          <p className="ok">0 error(s), 0 warning(s)</p>
-          <code>$ prodshape citations verify</code>
-          <p className="bad">0 current, 6 stale · exit 1</p>
-        </At>
-        <At at={2} className="beat human">
-          <small>{t('A person accepts', 'Una persona acepta')}</small>
-          <Person />
-          <strong>merge</strong>
-          <p className="quote">“Nothing was committed: open a pull request so a human can accept it.”</p>
         </At>
       </div>
     </>,
