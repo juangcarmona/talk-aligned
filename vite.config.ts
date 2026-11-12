@@ -5,5 +5,5 @@ export default defineConfig({
   plugins: [react()],
   base: './',
   server: { fs: { allow: ['.'] } },
-  build: { target: 'es2022', sourcemap: false, assetsInlineLimit: 0, chunkSizeWarningLimit: 900 },
+  build: { rollupOptions: { input: { main: 'index.html', constellation: 'constellation.html' } }, target: 'es2022', sourcemap: false, assetsInlineLimit: 0, chunkSizeWarningLimit: 900 },
 })
